@@ -1,10 +1,10 @@
-package com.University.Romm.Booking;
+package com.University.RoomBooking;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class RommBookingApplicationTests {
+class RoomBookingApplicationTests {
 
 	@Test
 	void contextLoads() {
