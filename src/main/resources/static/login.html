@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .error-text {
+            color: red;
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="form-container">
+        <h2>Login</h2>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="emailAddress">Email Address</label>
+                <input type="email" id="emailAddress" name="emailAddress" required>
+                <small class="error-text" id="emailAddressError"></small>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required minlength="6">
+                <small class="error-text" id="passwordError"></small>
+            </div>
+            <button type="submit">Login</button>
+        </form>
+        <p>Don't have an account? <a href="register.html">Register here</a></p>
+        <div id="errorMessage" class="error-message"></div>
+        <div id="successMessage" class="success-message"></div>
+    </div>
+</div>
+
+<script>
+    // Check if user is already logged in
+    document.addEventListener('DOMContentLoaded', () => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            window.location.href = 'dashboard.html';
+        }
+    });
+
+    // Form validation
+    const form = document.getElementById('loginForm');
+
+    function validateEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return 'Please enter a valid email address';
+        }
+        return '';
+    }
+
+    function validatePassword(password) {
+        if (password.length < 6) {
+            return 'Password must be at least 6 characters long';
+        }
+        return '';
+    }
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const emailAddress = document.getElementById('emailAddress').value;
+        const password = document.getElementById('password').value;
+        const errorMessage = document.getElementById('errorMessage');
+        const successMessage = document.getElementById('successMessage');
+
+        // Clear previous errors
+        document.querySelectorAll('.error-text').forEach(el => el.textContent = '');
+        errorMessage.style.display = 'none';
+        successMessage.style.display = 'none';
+
+        // Validate inputs
+        const emailError = validateEmail(emailAddress);
+        const passwordError = validatePassword(password);
+
+        if (emailError || passwordError) {
+            if (emailError) document.getElementById('emailAddressError').textContent = emailError;
+            if (passwordError) document.getElementById('passwordError').textContent = passwordError;
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ emailAddress, password })
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.token) {
+                successMessage.textContent = 'Login successful';
+                successMessage.style.display = 'block';
+                errorMessage.style.display = 'none';
+
+                localStorage.setItem('token', data.token);
+
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 2000);
+            } else {
+                errorMessage.textContent = data.message || 'Login failed';
+                errorMessage.style.display = 'block';
+                successMessage.style.display = 'none';
+            }
+        } catch (error) {
+            errorMessage.textContent = 'An error occurred during login';
+            errorMessage.style.display = 'block';
+            successMessage.style.display = 'none';
+            console.error('Login error:', error);
+        }
+    });
+</script>
+</body>
+</html>
