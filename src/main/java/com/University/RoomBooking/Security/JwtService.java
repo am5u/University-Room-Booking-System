@@ -58,6 +58,7 @@ public class JwtService {
             claims.put("name", user.getName());
             claims.put("userType", user.getUserType());
             claims.put("department", user.getDepartment());
+            claims.put("userId", user.getId());
             log.debug("Token claims: {}", claims);
             return generateToken(claims, user);
         } catch (Exception e) {
@@ -67,11 +68,17 @@ public class JwtService {
         }
     }
 
+    public String generateToken(UserDetails userDetails) {
+        Map<String, Object> extraClaims = new HashMap<>();
+        if (userDetails instanceof User) {
+            extraClaims.put("userId", ((User) userDetails).getId());
+        }
+        return generateToken(extraClaims, userDetails);
+    }
+
     public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
         try {
-            log.debug("Generating token with extra claims for user: {}", userDetails.getUsername());
-            return Jwts
-                    .builder()
+            return Jwts.builder()
                     .setClaims(extraClaims)
                     .setSubject(userDetails.getUsername())
                     .setIssuedAt(new Date(System.currentTimeMillis()))
@@ -79,9 +86,8 @@ public class JwtService {
                     .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                     .compact();
         } catch (Exception e) {
-            log.error("Error generating token for user {}: {}", userDetails.getUsername(), e.getMessage());
-            log.error("Token generation error details: ", e);
-            throw new RuntimeException("Failed to generate token: " + e.getMessage());
+            log.error("Error generating token: {}", e.getMessage());
+            throw new RuntimeException("Failed to generate token", e);
         }
     }
 

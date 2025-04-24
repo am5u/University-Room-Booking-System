@@ -41,7 +41,6 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
     // Find available rooms (not booked) for a specific time period
     @Query("SELECT DISTINCT r FROM Room r WHERE NOT EXISTS (" +
            "SELECT b FROM Booking b WHERE b.room = r " +
-           "AND b.status = 'CONFIRMED' " +
            "AND ((b.startTime <= :endTime AND b.endTime >= :startTime) " +
            "OR (b.startTime >= :startTime AND b.startTime < :endTime) " +
            "OR (b.endTime > :startTime AND b.endTime <= :endTime)))")

@@ -13,7 +13,7 @@
                     </button>
                     <ul id="authDropdown" class="dropdown-menu hidden">
                         <li><a href="profile.html"><i class="fas fa-user-circle me-2"></i>Profile</a></li>
-                        <li><a href="History.html"><i class="fas fa-receipt me-2"></i>Booking History</a></li>
+                        <li><a href="booking-history.html"><i class="fas fa-receipt me-2"></i>Booking History</a></li>
                         <li><a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
                     </ul>
                 </div>
@@ -188,7 +188,7 @@
             // Logout handler
             logoutBtn.onclick = () => {
                 localStorage.removeItem('token');
-                window.location.href = 'login.html';
+                window.location.href = 'home.html';
             };
         } else {
             dropdown.classList.add('hidden');

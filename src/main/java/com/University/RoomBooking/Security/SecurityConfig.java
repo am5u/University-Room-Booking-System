@@ -35,16 +35,20 @@ public class SecurityConfig {
                                 new AntPathRequestMatcher("/index.html"),
                                 new AntPathRequestMatcher("/login.html"),
                                 new AntPathRequestMatcher("/register.html"),
-                                new AntPathRequestMatcher("/dashboard.html"),
                                 new AntPathRequestMatcher("/home.html"),
                                 new AntPathRequestMatcher("/room-search.html"),
                                 new AntPathRequestMatcher("/components/**"),
                                 new AntPathRequestMatcher("/rooms.html"),
+                                new AntPathRequestMatcher("/booking.html"),
+                                new AntPathRequestMatcher("/booking-history.html"),
                                 new AntPathRequestMatcher("/css/**"),
                                 new AntPathRequestMatcher("/js/**"),
                                 new AntPathRequestMatcher("/images/**"),
                                 new AntPathRequestMatcher("/api/auth/**"),
-                                new AntPathRequestMatcher("/api/rooms/**")
+                                new AntPathRequestMatcher("/api/rooms/**"),
+                                new AntPathRequestMatcher("/api/bookings/**")
+
+                                
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Room - University Room Booking</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="js/auth.js"></script>
+    <script src="js/header.js"></script>
+
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #2ecc71;
+            --text-color: #2c3e50;
+            --light-bg: #f8f9fa;
+            --card-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--light-bg);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .booking-section {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            padding: 4rem 0;
+            color: white;
+            margin-bottom: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .booking-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80') center/cover;
+            opacity: 0.1;
+        }
+
+        .booking-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            padding: 2.5rem;
+            margin-top: -3rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .booking-title {
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-align: center;
+            background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .booking-subtitle {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.8rem;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 0.8rem;
+            display: block;
+        }
+
+        .form-control {
+            border: 2px solid #e1e1e1;
+            border-radius: 12px;
+            padding: 1rem 1.2rem;
+            font-size: 1.1rem;
+            transition: var(--transition);
+            background: #f8f9fa;
+        }
+
+        .form-control:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.1);
+            background: white;
+        }
+
+        .submit-button {
+            background: linear-gradient(135deg, var(--accent-color) 0%, #27ae60 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 1.2rem 2rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            width: 100%;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .submit-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(46, 204, 113, 0.3);
+        }
+
+        .room-details {
+            background: var(--light-bg);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .room-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #fff;
+        }
+
+        .room-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin: 0;
+        }
+
+        .room-capacity {
+            background: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 600;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .room-features {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .feature-badge {
+            background: white;
+            padding: 0.8rem 1.2rem;
+            border-radius: 25px;
+            font-size: 1rem;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: var(--transition);
+        }
+
+        .feature-badge i {
+            font-size: 1.1rem;
+            color: var(--secondary-color);
+        }
+
+        .alert {
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .alert i {
+            font-size: 1.2rem;
+        }
+
+        @media (max-width: 768px) {
+            .booking-title {
+                font-size: 2.2rem;
+            }
+
+            .booking-container {
+                padding: 1.5rem;
+                margin-top: -2rem;
+            }
+
+            .room-features {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="booking-section">
+        <div class="container">
+            <h1 class="booking-title">Book Your Room</h1>
+            <p class="booking-subtitle">Complete the form below to book your room</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="booking-container">
+            <div id="roomDetails" class="room-details">
+                <!-- Room details will be loaded here -->
+            </div>
+
+            <form id="bookingForm">
+                <input type="hidden" id="roomId" name="roomId">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="date">
+                                <i class="fas fa-calendar"></i> Date
+                            </label>
+                            <input type="date" class="form-control" id="date" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="time">
+                                <i class="fas fa-clock"></i> Time
+                            </label>
+                            <input type="time" class="form-control" id="time" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="duration">
+                                <i class="fas fa-hourglass-half"></i> Duration (hours)
+                            </label>
+                            <input type="number" class="form-control" id="duration" min="1" max="8" value="1" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="purpose">
+                                <i class="fas fa-info-circle"></i> Purpose
+                            </label>
+                            <input type="text" class="form-control" id="purpose" required>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="submit-button">
+                    <i class="fas fa-calendar-plus"></i> Confirm Booking
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const roomId = urlParams.get('roomId');
+            
+            if (!roomId) {
+                showError('No room selected');
+                return;
+            }
+
+            // Set room ID in hidden input
+            document.getElementById('roomId').value = roomId;
+
+            // Set minimum date to today
+            const dateInput = document.getElementById('date');
+            const today = new Date().toISOString().split('T')[0];
+            dateInput.min = today;
+
+            try {
+                // Load room details
+                const response = await fetch(`/api/rooms/${roomId}`);
+                if (!response.ok) {
+                    throw new Error('Failed to load room details');
+                }
+
+                const room = await response.json();
+                displayRoomDetails(room);
+
+                // Handle form submission
+                const bookingForm = document.getElementById('bookingForm');
+                bookingForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+
+                    try {
+                        // Check if user is authenticated
+                        let userId;
+                        try {
+                            userId = getCurrentUserId();
+                            console.log('Current user ID:', userId);
+                        } catch (error) {
+                            console.error('Error getting user ID:', error);
+                            showError('Please log in to book a room');
+                            return;
+                        }
+                        
+                        // Get form values
+                        const date = document.getElementById('date').value;
+                        const time = document.getElementById('time').value;
+                        const duration = parseInt(document.getElementById('duration').value);
+                        const purpose = document.getElementById('purpose').value;
+
+                        // Validate form data
+                        if (!date || !time || !duration || !purpose) {
+                            showError('Please fill in all required fields');
+                            return;
+                        }
+
+                        // First check if the room is available
+                        const availabilityRequest = {
+                            date: date,
+                            time: time,
+                            duration: duration
+                        };
+
+                        console.log('Checking availability with data:', JSON.stringify(availabilityRequest));
+
+                        try {
+                            const availabilityResponse = await fetch(`/api/rooms/${roomId}/availability`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                                },
+                                body: JSON.stringify(availabilityRequest)
+                            });
+
+                            console.log('Availability response status:', availabilityResponse.status);
+                            const availabilityText = await availabilityResponse.text();
+                            console.log('Raw availability response:', availabilityText);
+
+                            if (!availabilityResponse.ok) {
+                                let error;
+                                try {
+                                    error = JSON.parse(availabilityText);
+                                } catch (e) {
+                                    error = { message: availabilityText || 'Failed to check room availability' };
+                                }
+                                console.error('Availability check failed:', error);
+                                showError(error.message);
+                                return;
+                            }
+
+                            let availabilityResult;
+                            try {
+                                availabilityResult = JSON.parse(availabilityText);
+                            } catch (e) {
+                                console.error('Failed to parse availability response:', e);
+                                showError('Invalid response from server');
+                                return;
+                            }
+
+                            if (!availabilityResult.available) {
+                                showError('This room is already booked for the selected time slot. Please choose a different time.');
+                                return;
+                            }
+
+                            // If room is available, proceed with booking
+                            const bookingData = {
+                                roomId: parseInt(roomId),
+                                userId: parseInt(userId),
+                                date: date,
+                                time: time,
+                                duration: duration,
+                                purpose: purpose
+                            };
+
+                            console.log('Sending booking request:', JSON.stringify(bookingData));
+
+                            const bookingResponse = await fetch('/api/bookings', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                                },
+                                body: JSON.stringify(bookingData)
+                            });
+
+                            console.log('Booking response status:', bookingResponse.status);
+                            const responseText = await bookingResponse.text();
+                            console.log('Raw booking response:', responseText);
+
+                            if (bookingResponse.ok) {
+                                let result;
+                                try {
+                                    result = JSON.parse(responseText);
+                                    showSuccess('Room booked successfully!');
+                                    // Redirect to bookings page after 2 seconds
+                                    setTimeout(() => {
+                                        window.location.href = '/booking-history.html';
+                                    }, 2000);
+                                } catch (parseError) {
+                                    console.error('Error parsing booking response:', parseError);
+                                    showError('Invalid response from server');
+                                }
+                            } else {
+                                let errorMessage;
+                                try {
+                                    const error = JSON.parse(responseText);
+                                    errorMessage = error.message || 'Failed to book room';
+                                } catch (parseError) {
+                                    errorMessage = `Server error: ${bookingResponse.status} ${bookingResponse.statusText}`;
+                                }
+                                console.error('Booking error details:', {
+                                    status: bookingResponse.status,
+                                    statusText: bookingResponse.statusText,
+                                    responseText: responseText
+                                });
+                                showError(errorMessage);
+                            }
+                        } catch (error) {
+                            console.error('Request error:', error);
+                            showError('An error occurred while processing your request: ' + error.message);
+                        }
+                    } catch (error) {
+                        console.error('Booking error:', error);
+                        showError('An error occurred while booking the room: ' + error.message);
+                    }
+                });
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Failed to load room details');
+            }
+        });
+
+        function displayRoomDetails(room) {
+            const roomDetails = document.getElementById('roomDetails');
+            roomDetails.innerHTML = `
+                <div class="room-header">
+                    <h3 class="room-title">${room.name || 'Unnamed Room'}</h3>
+                    <span class="room-capacity">
+                        <i class="fas fa-users"></i>
+                        ${room.capacity || 0} people
+                    </span>
+                </div>
+                <p class="room-location">
+                    <i class="fas fa-map-marker-alt"></i>
+                    ${room.location || 'Location not specified'}
+                </p>
+                <div class="room-features">
+                    ${Array.isArray(room.facilities) ? room.facilities.map(feature => `
+                        <span class="feature-badge">
+                            <i class="fas fa-${getFeatureIcon(feature)}"></i>
+                            ${feature}
+                        </span>
+                    `).join('') : ''}
+                </div>
+                <p class="room-description">${room.description || 'No description available'}</p>
+            `;
+        }
+
+        function getFeatureIcon(feature) {
+            const icons = {
+                'PROJECTOR': 'video',
+                'WHITEBOARD': 'chalkboard',
+                'COMPUTER': 'desktop',
+                'WIFI': 'wifi',
+                'AIRCONDITIONING': 'snowflake'
+            };
+            return icons[feature] || 'check';
+        }
+
+        function showError(message) {
+            const errorAlert = document.createElement('div');
+            errorAlert.className = 'alert alert-danger alert-dismissible fade show';
+            errorAlert.role = 'alert';
+            errorAlert.innerHTML = `
+                <i class="fas fa-exclamation-circle"></i>
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+
+            const bookingContainer = document.querySelector('.booking-container');
+            bookingContainer.insertBefore(errorAlert, bookingContainer.firstChild);
+
+            setTimeout(() => {
+                errorAlert.classList.remove('show');
+                setTimeout(() => errorAlert.remove(), 150);
+            }, 5000);
+        }
+
+        function showSuccess(message) {
+            const successAlert = document.createElement('div');
+            successAlert.className = 'alert alert-success alert-dismissible fade show';
+            successAlert.role = 'alert';
+            successAlert.innerHTML = `
+                <i class="fas fa-check-circle"></i>
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+
+            const bookingContainer = document.querySelector('.booking-container');
+            bookingContainer.insertBefore(successAlert, bookingContainer.firstChild);
+
+            setTimeout(() => {
+                successAlert.classList.remove('show');
+                setTimeout(() => successAlert.remove(), 150);
+            }, 5000);
+        }
+    </script>
+</body>
+</html> 
