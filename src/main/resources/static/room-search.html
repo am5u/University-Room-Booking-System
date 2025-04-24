@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Room Search - University Room Booking</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="js/auth.js"></script>
+    <script src="js/header.js"></script>
+
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #2ecc71;
+            --text-color: #2c3e50;
+            --light-bg: #f8f9fa;
+            --card-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--light-bg);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .search-section {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            padding: 4rem 0;
+            color: white;
+            margin-bottom: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .search-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80') center/cover;
+            opacity: 0.1;
+        }
+
+        .search-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            padding: 2.5rem;
+            margin-top: -3rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .search-title {
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-align: center;
+            background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .search-subtitle {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.8rem;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 0.8rem;
+            display: block;
+        }
+
+        .form-control {
+            border: 2px solid #e1e1e1;
+            border-radius: 12px;
+            padding: 1rem 1.2rem;
+            font-size: 1.1rem;
+            transition: var(--transition);
+            background: #f8f9fa;
+        }
+
+        .form-control:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.1);
+            background: white;
+        }
+
+        .search-button {
+            background: linear-gradient(135deg, var(--accent-color) 0%, #27ae60 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 1.2rem 2rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            width: 100%;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .search-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(46, 204, 113, 0.3);
+        }
+
+        .results-section {
+            padding: 3rem 0;
+        }
+
+        .room-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: var(--card-shadow);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: var(--transition);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .room-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+        }
+
+        .room-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f8f9fa;
+        }
+
+        .room-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin: 0;
+        }
+
+        .room-capacity {
+            background: var(--light-bg);
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 600;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .room-capacity i {
+            color: var(--secondary-color);
+        }
+
+        .room-features {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .feature-badge {
+            background: var(--light-bg);
+            padding: 0.8rem 1.2rem;
+            border-radius: 25px;
+            font-size: 1rem;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: var(--transition);
+        }
+
+        .feature-badge:hover {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .feature-badge i {
+            font-size: 1.1rem;
+        }
+
+        .room-description {
+            color: #666;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+
+        .room-location {
+            color: var(--secondary-color);
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .book-button {
+            background: linear-gradient(135deg, var(--secondary-color) 0%, #2980b9 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 1rem 2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            width: 100%;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .book-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 4rem;
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            margin-top: 2rem;
+        }
+
+        .no-results i {
+            font-size: 4rem;
+            color: #ccc;
+            margin-bottom: 1.5rem;
+        }
+
+        .no-results h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 2rem;
+        }
+
+        .no-results p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .time-slots {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 2px solid #f8f9fa;
+        }
+
+        .time-slots-header {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .time-slots-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 0.8rem;
+        }
+
+        .time-slot {
+            text-align: center;
+            padding: 0.8rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+            background: var(--light-bg);
+            font-weight: 500;
+        }
+
+        .time-slot:not(.unavailable):hover {
+            background: var(--secondary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .time-slot.unavailable {
+            background: #f8d7da;
+            color: #721c24;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .time-slot.selected {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .search-title {
+                font-size: 2.2rem;
+            }
+
+            .search-container {
+                padding: 1.5rem;
+                margin-top: -2rem;
+            }
+
+            .room-features {
+                flex-wrap: wrap;
+            }
+
+            .time-slots-grid {
+                grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            }
+        }
+
+        .alert {
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .alert i {
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="search-section">
+        <div class="container">
+            <h1 class="search-title">Find Your Perfect Room</h1>
+            <p class="search-subtitle">Search for available rooms based on your requirements</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="search-container">
+            <form id="searchForm">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="date">
+                                <i class="fas fa-calendar"></i> Date
+                            </label>
+                            <input type="date" class="form-control" id="date" required>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="time">
+                                <i class="fas fa-clock"></i> Time
+                            </label>
+                            <input type="time" class="form-control" id="time" required>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="duration">
+                                <i class="fas fa-hourglass-half"></i> Duration (hours)
+                            </label>
+                            <input type="number" class="form-control" id="duration" min="1" max="8" value="1" required>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="capacity">
+                                <i class="fas fa-users"></i> Number of People
+                            </label>
+                            <input type="number" class="form-control" id="capacity" min="1" required>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="search-button">
+                    <i class="fas fa-search"></i> Search Rooms
+                </button>
+            </form>
+        </div>
+
+        <div class="results-section" id="resultsSection" style="display: none;">
+            <h2 class="mb-4">Available Rooms</h2>
+            <div id="roomResults" class="row">
+                <!-- Room cards will be dynamically added here -->
+            </div>
+        </div>
+
+        <div class="no-results" id="noResults" style="display: none;">
+            <i class="fas fa-search"></i>
+            <h3>No Rooms Found</h3>
+            <p>Try adjusting your search criteria to find available rooms.</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchForm = document.getElementById('searchForm');
+            const resultsSection = document.getElementById('resultsSection');
+            const roomResults = document.getElementById('roomResults');
+            const noResults = document.getElementById('noResults');
+
+            // Set minimum date to today
+            const dateInput = document.getElementById('date');
+            const today = new Date().toISOString().split('T')[0];
+            dateInput.min = today;
+
+            searchForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const date = document.getElementById('date').value;
+                const time = document.getElementById('time').value;
+                const duration = document.getElementById('duration').value;
+                const capacity = document.getElementById('capacity').value;
+
+                const searchCriteria = {
+                    date: date,
+                    time: time,
+                    duration: parseInt(duration),
+                    capacity: parseInt(capacity)
+                };
+
+                try {
+                    console.log('Search criteria:', searchCriteria);
+
+                    const response = await fetch('/api/rooms/search', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(searchCriteria)
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        displayResults(data);
+                    } else {
+                        const errorData = await response.json();
+                        showError(errorData.message || 'Failed to search rooms');
+                    }
+                } catch (error) {
+                    console.error('Search error:', error);
+                    showError('An error occurred while searching for rooms');
+                }
+            });
+
+            function displayResults(rooms) {
+                roomResults.innerHTML = '';
+                
+                if (!Array.isArray(rooms) || rooms.length === 0) {
+                    resultsSection.style.display = 'none';
+                    noResults.style.display = 'block';
+                    // Scroll to no results section
+                    noResults.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    return;
+                }
+
+                resultsSection.style.display = 'block';
+                noResults.style.display = 'none';
+
+                rooms.forEach(room => {
+                    const roomCard = createRoomCard(room);
+                    roomResults.appendChild(roomCard);
+                });
+
+                // Scroll to results section
+                resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+
+            function createRoomCard(room) {
+                const col = document.createElement('div');
+                col.className = 'col-md-6 col-lg-4';
+
+                col.innerHTML = `
+                    <div class="room-card">
+                        <div class="room-header">
+                            <h3 class="room-title">${room.name || 'Unnamed Room'}</h3>
+                            <span class="room-capacity">
+                                <i class="fas fa-users"></i>
+                                ${room.capacity || 0} people
+                            </span>
+                        </div>
+                        <p class="room-location">
+                            <i class="fas fa-map-marker-alt"></i>
+                            ${room.location || 'Location not specified'}
+                        </p>
+                        <div class="room-features">
+                            ${Array.isArray(room.facilities) ? room.facilities.map(feature => `
+                                <span class="feature-badge">
+                                    <i class="fas fa-${getFeatureIcon(feature)}"></i>
+                                    ${feature}
+                                </span>
+                            `).join('') : ''}
+                        </div>
+                        <p class="room-description">${room.description || 'No description available'}</p>
+                        <button class="book-button" onclick="bookRoom('${room.id}')">
+                            <i class="fas fa-calendar-plus"></i> Book Now
+                        </button>
+                    </div>
+                `;
+
+                return col;
+            }
+
+            function getFeatureIcon(feature) {
+                const icons = {
+                    'PROJECTOR': 'video',
+                    'WHITEBOARD': 'chalkboard',
+                    'COMPUTER': 'desktop',
+                    'WIFI': 'wifi',
+                    'AIRCONDITIONING': 'snowflake'
+                };
+                return icons[feature] || 'check';
+            }
+
+            function showError(message) {
+                const errorAlert = document.createElement('div');
+                errorAlert.className = 'alert alert-danger alert-dismissible fade show';
+                errorAlert.role = 'alert';
+                errorAlert.innerHTML = `
+                    <i class="fas fa-exclamation-circle"></i>
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                `;
+
+                const searchContainer = document.querySelector('.search-container');
+                searchContainer.insertBefore(errorAlert, searchContainer.firstChild);
+
+                setTimeout(() => {
+                    errorAlert.classList.remove('show');
+                    setTimeout(() => errorAlert.remove(), 150);
+                }, 5000);
+            }
+        });
+
+        function bookRoom(roomId) {
+            window.location.href = `booking.html?roomId=${roomId}`;
+        }
+    </script>
+</body>
+</html> 

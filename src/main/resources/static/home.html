@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>University Room Booking - Home</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="js/auth.js"></script>
+    <script src="js/header.js"></script>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #2ecc71;
+            --text-color: #2c3e50;
+            --light-bg: #f8f9fa;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .hero-section {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 120px 0;
+            margin-bottom: 80px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80') center/cover;
+            opacity: 0.1;
+            z-index: 0;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .hero-subtitle {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .feature-card {
+            transition: all 0.3s ease;
+            height: 100%;
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            background: white;
+            overflow: hidden;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            color: var(--secondary-color);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover .feature-icon {
+            transform: scale(1.1);
+            color: var(--accent-color);
+        }
+
+        .feature-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        .feature-text {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .cta-button {
+            padding: 15px 35px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border-radius: 30px;
+            transition: all 0.3s ease;
+            background: var(--accent-color);
+            border: none;
+            color: white;
+            box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(46, 204, 113, 0.4);
+            background: #27ae60;
+            color: white;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 3rem;
+            color: var(--primary-color);
+            text-align: center;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: var(--accent-color);
+            border-radius: 2px;
+        }
+
+        .benefits-section {
+            background: var(--light-bg);
+            padding: 80px 0;
+            margin: 80px 0;
+        }
+
+        .benefit-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .benefit-item:hover {
+            background: white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transform: translateX(10px);
+        }
+
+        .benefit-icon {
+            font-size: 1.5rem;
+            color: var(--accent-color);
+            margin-right: 1rem;
+        }
+
+        .benefit-text {
+            font-size: 1.1rem;
+            color: var(--text-color);
+        }
+
+        .image-section img {
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .image-section img:hover {
+            transform: scale(1.02);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+        }
+
+        footer {
+            background: var(--primary-color);
+            color: white;
+            padding: 40px 0;
+            margin-top: 80px;
+        }
+
+        footer p {
+            margin: 0;
+            font-size: 1.1rem;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 1.2rem;
+            }
+            
+            .section-title {
+                font-size: 2rem;
+            }
+            
+            .feature-card {
+                margin-bottom: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="hero-section">
+        <div class="container text-center hero-content">
+            <h1 class="hero-title">Welcome to University Room Booking</h1>
+            <p class="hero-subtitle">Streamline your academic space management with our intuitive booking system</p>
+            <a href="room-search.html" class="btn cta-button">Book a Room Now</a>
+        </div>
+    </div>
+
+    <div class="container mb-5">
+        <h2 class="section-title">Our Features</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="card-body text-center p-4">
+                        <i class="fas fa-search feature-icon"></i>
+                        <h3 class="feature-title">Smart Search</h3>
+                        <p class="feature-text">Find the perfect room with our advanced search and filtering system, tailored to your specific needs.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="card-body text-center p-4">
+                        <i class="fas fa-calendar-check feature-icon"></i>
+                        <h3 class="feature-title">Effortless Booking</h3>
+                        <p class="feature-text">Book rooms in seconds with our streamlined booking process, designed for maximum efficiency.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="card-body text-center p-4">
+                        <i class="fas fa-bell feature-icon"></i>
+                        <h3 class="feature-title">Real-time Updates</h3>
+                        <p class="feature-text">Stay informed with instant notifications and real-time updates about your bookings.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="benefits-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h2 class="section-title text-start">Why Choose Our System?</h2>
+                    <div class="benefits-list">
+                        <div class="benefit-item">
+                            <i class="fas fa-check-circle benefit-icon"></i>
+                            <span class="benefit-text">Real-time room availability tracking</span>
+                        </div>
+                        <div class="benefit-item">
+                            <i class="fas fa-check-circle benefit-icon"></i>
+                            <span class="benefit-text">Intuitive and user-friendly interface</span>
+                        </div>
+                        <div class="benefit-item">
+                            <i class="fas fa-check-circle benefit-icon"></i>
+                            <span class="benefit-text">Comprehensive room information</span>
+                        </div>
+                        <div class="benefit-item">
+                            <i class="fas fa-check-circle benefit-icon"></i>
+                            <span class="benefit-text">Instant booking confirmations</span>
+                        </div>
+                        <div class="benefit-item">
+                            <i class="fas fa-check-circle benefit-icon"></i>
+                            <span class="benefit-text">Easy booking management system</span>
+                        </div>
+                    </div>
+                    <a href="rooms.html" class="btn cta-button mt-4">Get Started</a>
+                </div>
+                <div class="col-md-6 image-section">
+                    <img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" 
+                         alt="University Building" 
+                         class="img-fluid">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container text-center">
+            <p>&copy; 2024 University Room Booking System. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
