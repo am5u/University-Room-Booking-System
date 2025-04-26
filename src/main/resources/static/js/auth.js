@@ -78,4 +78,176 @@ function getCurrentUserId() {
         console.error('Error getting current user ID:', error);
         throw error;
     }
+}
+
+// Function to check if user is logged in
+function isLoggedIn() {
+    const token = localStorage.getItem('token');
+    if (!token) return false;
+    
+    try {
+        const tokenParts = token.split('.');
+        if (tokenParts.length !== 3) return false;
+        
+        const payload = JSON.parse(atob(tokenParts[1]));
+        const expiration = new Date(payload.exp * 1000);
+        
+        if (expiration < new Date()) {
+            clearUserData();
+            return false;
+        }
+        
+        // Ensure all required user data is present
+        if (!payload.role || !payload.userId || !payload.name || !payload.department) {
+            clearUserData();
+            return false;
+        }
+        
+        return true;
+    } catch (e) {
+        console.error('Error checking login status:', e);
+        clearUserData();
+        return false;
+    }
+}
+
+// Function to get user role
+function getUserRole() {
+    const role = localStorage.getItem('userRole');
+    if (!role) {
+        const token = localStorage.getItem('token');
+        if (token) {
+            try {
+                const tokenParts = token.split('.');
+                if (tokenParts.length === 3) {
+                    const payload = JSON.parse(atob(tokenParts[1]));
+                    if (payload.role) {
+                        localStorage.setItem('userRole', payload.role);
+                        return payload.role;
+                    }
+                }
+            } catch (e) {
+                console.error('Error getting user role:', e);
+            }
+        }
+    }
+    return role;
+}
+
+// Function to check if user is admin
+function isAdmin() {
+    return getUserRole() === 'ADMIN';
+}
+
+// Function to check if user is student
+function isStudent() {
+    return getUserRole() === 'STUDENT';
+}
+
+// Function to handle unauthorized access
+function handleUnauthorized() {
+    alert('You are not authorized to access this page');
+    window.location.href = 'home.html';
+}
+
+// Function to check authorization for student pages
+function checkStudentAuthorization() {
+    if (!isLoggedIn()) {
+        window.location.href = 'login.html';
+        return;
+    }
+    if (!isStudent()) {
+        handleUnauthorized();
+    }
+}
+
+// Function to check authorization for admin pages
+function checkAdminAuthorization() {
+    if (!isLoggedIn()) {
+        window.location.href = 'login.html';
+        return;
+    }
+    if (!isAdmin()) {
+        handleUnauthorized();
+    }
+}
+
+// Function to decode JWT token
+function decodeToken(token) {
+    try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+
+        return JSON.parse(jsonPayload);
+    } catch (e) {
+        console.error('Error decoding token:', e);
+        return null;
+    }
+}
+
+// Function to store user data from token
+function storeUserData(token) {
+    try {
+        const tokenParts = token.split('.');
+        if (tokenParts.length === 3) {
+            const payload = JSON.parse(atob(tokenParts[1]));
+            
+            // Verify all required data is present
+            if (!payload.role || !payload.userId || !payload.name || !payload.department) {
+                console.error('Missing required user data in token');
+                return false;
+            }
+            
+            localStorage.setItem('userRole', payload.role);
+            localStorage.setItem('userId', payload.userId);
+            localStorage.setItem('userName', payload.name);
+            localStorage.setItem('userDepartment', payload.department);
+            return true;
+        }
+    } catch (e) {
+        console.error('Error storing user data:', e);
+    }
+    return false;
+}
+
+// Function to clear user data
+function clearUserData() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('userName');
+    localStorage.removeItem('userDepartment');
+}
+
+// Function to add authorization header to fetch requests
+function addAuthHeader(headers = {}) {
+    const token = localStorage.getItem('token');
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+    }
+    return headers;
+}
+
+// Function to handle API responses
+async function handleApiResponse(response) {
+    if (response.status === 401) {
+        clearUserData();
+        window.location.href = 'login.html';
+        return null;
+    }
+    if (response.status === 403) {
+        handleUnauthorized();
+        return null;
+    }
+    return await response.json();
+}
+
+// Function to make authenticated API calls
+async function authenticatedFetch(url, options = {}) {
+    options.headers = addAuthHeader(options.headers || {});
+    const response = await fetch(url, options);
+    return handleApiResponse(response);
 } 

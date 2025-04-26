@@ -134,6 +134,25 @@
             border: 1px solid rgba(0,0,0,0.05);
         }
 
+        .room-image {
+            margin: 0;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            height: 100%;
+        }
+
+        .room-image img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .room-image img:hover {
+            transform: scale(1.05);
+        }
+
         .room-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 12px 24px rgba(0,0,0,0.15);
@@ -189,11 +208,7 @@
             transition: var(--transition);
         }
 
-        .feature-badge:hover {
-            background: var(--secondary-color);
-            color: white;
-        }
-
+       
         .feature-badge i {
             font-size: 1.1rem;
         }
@@ -324,6 +339,24 @@
             .time-slots-grid {
                 grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
             }
+
+            .room-image {
+                margin-bottom: 1.5rem;
+            }
+            
+            .room-image img {
+                height: 200px;
+            }
+
+            .room-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .room-capacity {
+                align-self: flex-start;
+            }
         }
 
         .alert {
@@ -337,6 +370,25 @@
 
         .alert i {
             font-size: 1.2rem;
+        }
+
+        .room-info {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        .room-type {
+            background: var(--light-bg);
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 600;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .room-type i {
+            color: var(--secondary-color);
         }
     </style>
 </head>
@@ -384,6 +436,24 @@
                             <input type="number" class="form-control" id="capacity" min="1" required>
                         </div>
                     </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="roomType">
+                                <i class="fas fa-door-open"></i> Room Type
+                            </label>
+                            <select class="form-control" id="roomType">
+                                <option value="">All Types</option>
+                                <option value="Lecture Hall">Lecture Hall</option>
+                                <option value="Seminar Room">Seminar Room</option>
+                                <option value="Conference Room">Conference Room</option>
+                                <option value="Study Room">Study Room</option>
+                                <option value="Meeting Room">Meeting Room</option>
+                                <option value="Computer Lab">Computer Lab</option>
+                                <option value="Presentation Room">Presentation Room</option>
+                                <option value="Research Lab">Research Lab</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
                 <button type="submit" class="search-button">
                     <i class="fas fa-search"></i> Search Rooms
@@ -407,6 +477,10 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            if (!isLoggedIn()) {
+                window.location.href = 'login.html';
+            }
+
             const searchForm = document.getElementById('searchForm');
             const resultsSection = document.getElementById('resultsSection');
             const roomResults = document.getElementById('roomResults');
@@ -417,19 +491,52 @@
             const today = new Date().toISOString().split('T')[0];
             dateInput.min = today;
 
+            // Add time validation
+            const timeInput = document.getElementById('time');
+            
+            function validateDateTime() {
+                const selectedDate = dateInput.value;
+                const selectedTime = timeInput.value;
+                
+                if (selectedDate === today) {
+                    const now = new Date();
+                    const currentTime = now.getHours() * 60 + now.getMinutes();
+                    const [hours, minutes] = selectedTime.split(':').map(Number);
+                    const selectedMinutes = hours * 60 + minutes;
+                    
+                    if (selectedMinutes <= currentTime) {
+                        timeInput.setCustomValidity('Please select a future time');
+                        return false;
+                    }
+                }
+                
+                timeInput.setCustomValidity('');
+                return true;
+            }
+
+            dateInput.addEventListener('change', validateDateTime);
+            timeInput.addEventListener('change', validateDateTime);
+
             searchForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
+                
+                if (!validateDateTime()) {
+                    showError('Please select a future time');
+                    return;
+                }
                 
                 const date = document.getElementById('date').value;
                 const time = document.getElementById('time').value;
                 const duration = document.getElementById('duration').value;
                 const capacity = document.getElementById('capacity').value;
+                const roomType = document.getElementById('roomType').value;
 
                 const searchCriteria = {
                     date: date,
                     time: time,
                     duration: parseInt(duration),
-                    capacity: parseInt(capacity)
+                    capacity: parseInt(capacity),
+                    roomType: roomType
                 };
 
                 try {
@@ -445,9 +552,19 @@
 
                     if (response.ok) {
                         const data = await response.json();
-                        displayResults(data);
+                        console.log('Received rooms:', data);
+                        // Filter by room type if selected
+                        const filteredRooms = roomType 
+                            ? data.filter(room => {
+                                console.log('Comparing room type:', room.roomType, 'with search type:', roomType);
+                                return room.roomType === roomType;
+                            })
+                            : data;
+                        console.log('Filtered rooms:', filteredRooms);
+                        displayResults(filteredRooms);
                     } else {
                         const errorData = await response.json();
+                        console.error('Search error response:', errorData);
                         showError(errorData.message || 'Failed to search rooms');
                     }
                 } catch (error) {
@@ -470,6 +587,9 @@
                 resultsSection.style.display = 'block';
                 noResults.style.display = 'none';
 
+                // Sort rooms by capacity (ascending)
+                rooms.sort((a, b) => (a.capacity || 0) - (b.capacity || 0));
+
                 rooms.forEach(room => {
                     const roomCard = createRoomCard(room);
                     roomResults.appendChild(roomCard);
@@ -481,33 +601,43 @@
 
             function createRoomCard(room) {
                 const col = document.createElement('div');
-                col.className = 'col-md-6 col-lg-4';
+                col.className = 'col-12';
 
                 col.innerHTML = `
                     <div class="room-card">
-                        <div class="room-header">
-                            <h3 class="room-title">${room.name || 'Unnamed Room'}</h3>
-                            <span class="room-capacity">
-                                <i class="fas fa-users"></i>
-                                ${room.capacity || 0} people
-                            </span>
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="room-header">
+                                    <h3 class="room-title">${room.name || 'Unnamed Room'}</h3>
+                                    <div class="room-info">
+                                        <span class="room-type">
+                                            <i class="fas fa-door-open"></i>
+                                            ${room.roomType || 'Unspecified Type'}
+                                        </span>
+                                        <span class="room-capacity">
+                                            <i class="fas fa-users"></i>
+                                            ${room.capacity || 0} people
+                                        </span>
+                                    </div>
+                                </div>
+                                <p class="room-location">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    ${room.location || 'Location not specified'}
+                                </p>
+                                <div class="room-features">
+                                    ${room.availableEquipment ? room.availableEquipment.split(',').map(equipment => `
+                                        <span class="feature-badge">
+                                            <i class="fas fa-${getFeatureIcon(equipment.trim())}"></i>
+                                            ${equipment.trim()}
+                                        </span>
+                                    `).join('') : ''}
+                                </div>
+                                <p class="room-description">${room.description || 'No description available'}</p>
+                                <button class="book-button" onclick="bookRoom('${room.id}')">
+                                    <i class="fas fa-calendar-plus"></i> Book Now
+                                </button>
+                            </div>
                         </div>
-                        <p class="room-location">
-                            <i class="fas fa-map-marker-alt"></i>
-                            ${room.location || 'Location not specified'}
-                        </p>
-                        <div class="room-features">
-                            ${Array.isArray(room.facilities) ? room.facilities.map(feature => `
-                                <span class="feature-badge">
-                                    <i class="fas fa-${getFeatureIcon(feature)}"></i>
-                                    ${feature}
-                                </span>
-                            `).join('') : ''}
-                        </div>
-                        <p class="room-description">${room.description || 'No description available'}</p>
-                        <button class="book-button" onclick="bookRoom('${room.id}')">
-                            <i class="fas fa-calendar-plus"></i> Book Now
-                        </button>
                     </div>
                 `;
 
@@ -516,11 +646,17 @@
 
             function getFeatureIcon(feature) {
                 const icons = {
-                    'PROJECTOR': 'video',
-                    'WHITEBOARD': 'chalkboard',
-                    'COMPUTER': 'desktop',
-                    'WIFI': 'wifi',
-                    'AIRCONDITIONING': 'snowflake'
+                    'Projector': 'video',
+                    'Sound System': 'volume-up',
+                    'Microphones': 'microphone',
+                    'Whiteboard': 'chalkboard',
+                    'Smart Board': 'tv',
+                    'Video Conferencing System': 'video',
+                    'Smart TV': 'tv',
+                    'Computers': 'desktop',
+                    'Printer': 'print',
+                    'TV Screen': 'tv',
+                    'Specialized Equipment': 'tools'
                 };
                 return icons[feature] || 'check';
             }

@@ -22,6 +22,8 @@ public class RoomService {
     private final BookingRepository bookingRepository;
 
     public List<Room> findAvailableRooms(RoomSearchRequest request) {
+        System.out.println("Received search request: " + request);
+        
         // Parse date and time
         LocalDate date = LocalDate.parse(request.getDate());
         LocalTime time = LocalTime.parse(request.getTime());
@@ -30,14 +32,33 @@ public class RoomService {
         LocalDateTime startTime = LocalDateTime.of(date, time);
         LocalDateTime endTime = startTime.plusHours(request.getDuration());
 
+        System.out.println("Searching for rooms between " + startTime + " and " + endTime);
+
         // Find available rooms
         List<Room> availableRooms = roomRepository.findAvailableRooms(startTime, endTime);
+        System.out.println("Total available rooms before filtering: " + availableRooms.size());
+        System.out.println("Available rooms: " + availableRooms);
 
         // Filter by capacity if specified
         if (request.getCapacity() != null) {
             availableRooms = availableRooms.stream()
                 .filter(room -> room.getCapacity() >= request.getCapacity())
                 .toList();
+            System.out.println("Rooms after capacity filter: " + availableRooms.size());
+        }
+
+        // Filter by room type if specified
+        if (request.getRoomType() != null && !request.getRoomType().trim().isEmpty()) {
+            String searchType = request.getRoomType().trim();
+            System.out.println("Searching for room type: " + searchType);
+            availableRooms = availableRooms.stream()
+                .filter(room -> {
+                    boolean matches = room.getRoomType().equalsIgnoreCase(searchType);
+                    System.out.println("Room " + room.getId() + " type: " + room.getRoomType() + " matches: " + matches);
+                    return matches;
+                })
+                .toList();
+            System.out.println("Rooms after type filter: " + availableRooms.size());
         }
 
         return availableRooms;
@@ -71,5 +92,34 @@ public class RoomService {
             .toList();
 
         return conflictingBookings.isEmpty();
+    }
+
+    public List<Room> getAllRooms() {
+        return roomRepository.findAll();
+    }
+
+    public Room createRoom(Room room) {
+        return roomRepository.save(room);
+    }
+
+    public Room updateRoom(Long id, Room roomDetails) {
+        Room room = roomRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Room not found"));
+        
+        room.setName(roomDetails.getName());
+        room.setCapacity(roomDetails.getCapacity());
+        room.setLocation(roomDetails.getLocation());
+        room.setDescription(roomDetails.getDescription());
+        room.setAvailableEquipment(roomDetails.getAvailableEquipment());
+        room.setImageUrl(roomDetails.getImageUrl());
+        room.setRoomType(roomDetails.getRoomType());
+        
+        return roomRepository.save(room);
+    }
+
+    public void deleteRoom(Long id) {
+        Room room = roomRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Room not found"));
+        roomRepository.delete(room);
     }
 } 

@@ -25,8 +25,6 @@ import java.util.List;
 public class AuthenticationService {
 
     private final UserRepository userRepository;
-    private final StudentRepository studentRepository;
-    private final FacultyMemberRepository facultyMemberRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
@@ -57,32 +55,12 @@ public class AuthenticationService {
                 .name(request.getName())
                 .emailAddress(request.getEmailAddress())
                 .password(encodedPassword)
-                .role(Role.USER)
-                .userType(request.getUserType())
+                .role(Role.STUDENT)
                 .department(request.getDepartment())
                 .build();
 
         User savedUser = userRepository.save(user);
         log.info("User registered successfully with ID: {}", savedUser.getId());
-
-        // Create student or faculty member record based on user type
-        if (request.getUserType() == UserType.STUDENT) {
-            Student student = Student.builder()
-                    .user(savedUser)
-                    .studentId(request.getStudentId())
-                    .program(request.getProgram())
-                    .yearOfStudy(request.getYearOfStudy())
-                    .build();
-            studentRepository.save(student);
-            log.info("Student record created for user: {}", savedUser.getId());
-        } else if (request.getUserType() == UserType.FACULTY_MEMBER) {
-            FacultyMember facultyMember = FacultyMember.builder()
-                    .user(savedUser)
-                    .designation(request.getDesignation())
-                    .build();
-            facultyMemberRepository.save(facultyMember);
-            log.info("Faculty member record created for user: {}", savedUser.getId());
-        }
 
         String jwtToken = jwtService.generateToken(savedUser);
         log.info("JWT token generated for user: {}", savedUser.getName());
@@ -115,7 +93,6 @@ public class AuthenticationService {
 
             log.debug("Found user in database: {}", user.getEmailAddress());
             log.debug("User role: {}", user.getRole());
-            log.debug("User type: {}", user.getUserType());
 
             String jwtToken = jwtService.generateToken(user);
             log.info("JWT token generated for authenticated user: {}", user.getName());
@@ -127,10 +104,6 @@ public class AuthenticationService {
         } catch (BadCredentialsException e) {
             log.error("Authentication failed - Invalid credentials for user: {}", request.getEmailAddress());
             throw new RuntimeException("Invalid email or password");
-        } catch (AuthenticationException e) {
-            log.error("Authentication failed for user: {} - Error: {}", request.getEmailAddress(), e.getMessage());
-            log.error("Authentication exception details: ", e);
-            throw new RuntimeException("Authentication failed: " + e.getMessage());
         }
     }
 
@@ -142,7 +115,6 @@ public class AuthenticationService {
         users.forEach(user -> {
             log.info("User: {}", user.getName());
             log.info("Role: {}", user.getRole());
-            log.info("Password Hash: {}", user.getPassword());
             log.info("Email: {}", user.getEmailAddress());
         });
         return users;

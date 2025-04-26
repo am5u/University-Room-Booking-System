@@ -30,6 +30,12 @@ public class RoomController {
             .orElse(ResponseEntity.notFound().build());
     }
 
+    @GetMapping
+    public ResponseEntity<List<Room>> getAllRooms() {
+        List<Room> rooms = roomService.getAllRooms();
+        return ResponseEntity.ok(rooms);
+    }
+
     @PostMapping("/{roomId}/availability")
     public ResponseEntity<?> checkRoomAvailability(
             @PathVariable Long roomId,

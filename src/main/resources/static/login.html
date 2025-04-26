@@ -269,11 +269,27 @@
                     successMessage.style.display = 'block';
                     errorMessage.style.display = 'none';
 
+                    // Store the token
                     localStorage.setItem('token', data.token);
+                    
+                    // Decode and store user data from token
+                    const tokenParts = data.token.split('.');
+                    if (tokenParts.length === 3) {
+                        const payload = JSON.parse(atob(tokenParts[1]));
+                        localStorage.setItem('userRole', payload.role);
+                        localStorage.setItem('userId', payload.userId);
+                        localStorage.setItem('userName', payload.name);
+                        localStorage.setItem('userDepartment', payload.department);
 
-                    setTimeout(() => {
-                        window.location.href = 'home.html';
-                    }, 2000);
+                        // Redirect based on user role
+                        setTimeout(() => {
+                            if (payload.role === 'ADMIN') {
+                                window.location.href = 'admin.html';
+                            } else {
+                                window.location.href = 'home.html';
+                            }
+                        }, 1000);
+                    }
                 } else {
                     errorMessage.textContent = data.message || 'Login failed';
                     errorMessage.style.display = 'block';

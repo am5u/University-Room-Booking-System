@@ -285,6 +285,10 @@
     </div>
 
     <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            checkStudentAuthorization();
+        });
+
         document.addEventListener('DOMContentLoaded', async function() {
             try {
                 const userId = getCurrentUserId();
@@ -318,8 +322,8 @@
                     return;
                 }
 
-                // Sort bookings by date (newest first)
-                bookings.sort((a, b) => new Date(b.startTime) - new Date(a.startTime));
+                // Sort bookings by ID (newest first)
+                bookings.sort((a, b) => b.bookingId - a.bookingId);
 
                 bookings.forEach(booking => {
                     const bookingCard = createBookingCard(booking);

@@ -48,6 +48,8 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
         @Param("startTime") LocalDateTime startTime,
         @Param("endTime") LocalDateTime endTime
     );
+
+    List<Room> findByRoomType(String roomType);
 }
     
     // Find rooms by type, capacity range, and features

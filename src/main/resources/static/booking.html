@@ -512,6 +512,10 @@
                 setTimeout(() => successAlert.remove(), 150);
             }, 5000);
         }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            checkStudentAuthorization();
+        });
     </script>
 </body>
 </html> 

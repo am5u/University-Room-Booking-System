@@ -21,21 +21,22 @@ import java.util.List;
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
+    @Column(nullable = false)
     private String name;
 
-    @Column(unique = true)
+    @Column(nullable = false, unique = true)
     private String emailAddress;
 
+    @Column(nullable = false)
     private String password;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Role role;
 
-    @Enumerated(EnumType.STRING)
-    private UserType userType;
-
+    @Column(nullable = false)
     private String department;
 
     @Override
@@ -50,7 +51,7 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return emailAddress; // Using email as username for authentication
+        return emailAddress;
     }
 
     @Override

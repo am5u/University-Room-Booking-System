@@ -14,4 +14,5 @@ public class RoomSearchRequest {
     private String time;
     private Integer duration; // Duration in hours
     private Integer capacity;
+    private String roomType;
 } 

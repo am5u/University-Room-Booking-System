@@ -31,6 +31,9 @@ public class Room {
     @Column(nullable = false)
     private String location;
 
+    @Column(nullable = false)
+    private String roomType;
+
     @Column(columnDefinition = "TEXT")
     private String description;
 

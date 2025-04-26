@@ -202,7 +202,7 @@
 <body>
     <div class="register-container">
         <div class="register-header">
-            <h2>Create Account</h2>
+            <h2>Create Student Account</h2>
             <p>Join our university room booking system</p>
         </div>
         <form id="registerForm">
@@ -224,56 +224,6 @@
                 <input type="text" id="department" name="department" required>
                 <i class="fas fa-building"></i>
                 <small class="error-text" id="departmentError"></small>
-            </div>
-
-            <!-- User Type Selection -->
-            <div class="form-group">
-                <label for="userType">I am a</label>
-                <select id="userType" name="userType" required>
-                    <option value="">Select your type</option>
-                    <option value="STUDENT">Student</option>
-                    <option value="FACULTY_MEMBER">Faculty Member</option>
-                </select>
-                <i class="fas fa-user-tag"></i>
-                <small class="error-text" id="userTypeError"></small>
-            </div>
-
-            <!-- Student Specific Fields -->
-            <div id="studentFields" class="user-type-fields">
-                <div class="form-group">
-                    <label for="studentId">Student ID</label>
-                    <input type="text" id="studentId" name="studentId">
-                    <i class="fas fa-id-card"></i>
-                    <small class="error-text" id="studentIdError"></small>
-                </div>
-                <div class="form-group">
-                    <label for="program">Program</label>
-                    <input type="text" id="program" name="program">
-                    <i class="fas fa-graduation-cap"></i>
-                    <small class="error-text" id="programError"></small>
-                </div>
-                <div class="form-group">
-                    <label for="yearOfStudy">Year of Study</label>
-                    <input type="number" id="yearOfStudy" name="yearOfStudy" min="1" max="5">
-                    <i class="fas fa-calendar-alt"></i>
-                    <small class="error-text" id="yearOfStudyError"></small>
-                </div>
-            </div>
-
-            <!-- Faculty Specific Fields -->
-            <div id="facultyFields" class="user-type-fields">
-                <div class="form-group">
-                    <label for="designation">Designation</label>
-                    <select id="designation" name="designation">
-                        <option value="">Select designation</option>
-                        <option value="LECTURER">Lecturer</option>
-                        <option value="ASSISTANT_PROFESSOR">Assistant Professor</option>
-                        <option value="ASSOCIATE_PROFESSOR">Associate Professor</option>
-                        <option value="PROFESSOR">Professor</option>
-                    </select>
-                    <i class="fas fa-user-tie"></i>
-                    <small class="error-text" id="designationError"></small>
-                </div>
             </div>
 
             <div class="form-group">
@@ -299,26 +249,7 @@
             if (token) {
                 window.location.href = 'home.html';
             }
-
-            // Add event listener for user type change
-            const userTypeSelect = document.getElementById('userType');
-            userTypeSelect.addEventListener('change', toggleUserTypeFields);
         });
-
-        function toggleUserTypeFields() {
-            const userType = document.getElementById('userType').value;
-            const studentFields = document.getElementById('studentFields');
-            const facultyFields = document.getElementById('facultyFields');
-
-            studentFields.classList.remove('active');
-            facultyFields.classList.remove('active');
-
-            if (userType === 'STUDENT') {
-                studentFields.classList.add('active');
-            } else if (userType === 'FACULTY_MEMBER') {
-                facultyFields.classList.add('active');
-            }
-        }
 
         // Form validation
         const form = document.getElementById('registerForm');
@@ -345,34 +276,6 @@
             return '';
         }
 
-        function validateStudentId(studentId) {
-            if (!studentId || studentId.trim().length < 5) {
-                return 'Student ID must be at least 5 characters long';
-            }
-            return '';
-        }
-
-        function validateProgram(program) {
-            if (!program || program.trim().length < 2) {
-                return 'Program must be at least 2 characters long';
-            }
-            return '';
-        }
-
-        function validateYearOfStudy(year) {
-            if (!year || year < 1 || year > 5) {
-                return 'Year of study must be between 1 and 5';
-            }
-            return '';
-        }
-
-        function validateDesignation(designation) {
-            if (!designation) {
-                return 'Please select a designation';
-            }
-            return '';
-        }
-
         function validatePassword(password) {
             if (password.length < 6) {
                 return 'Password must be at least 6 characters long';
@@ -383,7 +286,6 @@
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            const userType = document.getElementById('userType').value;
             const name = document.getElementById('name').value;
             const emailAddress = document.getElementById('emailAddress').value;
             const department = document.getElementById('department').value;
@@ -396,7 +298,7 @@
             errorMessage.style.display = 'none';
             successMessage.style.display = 'none';
 
-            // Validate common fields
+            // Validate fields
             const nameError = validateName(name);
             const emailError = validateEmail(emailAddress);
             const departmentError = validateDepartment(department);
@@ -410,55 +312,13 @@
                 return;
             }
 
-            // Validate user type specific fields
-            let specificFieldsValid = true;
-            if (userType === 'STUDENT') {
-                const studentId = document.getElementById('studentId').value;
-                const program = document.getElementById('program').value;
-                const yearOfStudy = parseInt(document.getElementById('yearOfStudy').value);
-
-                const studentIdError = validateStudentId(studentId);
-                const programError = validateProgram(program);
-                const yearError = validateYearOfStudy(yearOfStudy);
-
-                if (studentIdError || programError || yearError) {
-                    if (studentIdError) document.getElementById('studentIdError').textContent = studentIdError;
-                    if (programError) document.getElementById('programError').textContent = programError;
-                    if (yearError) document.getElementById('yearOfStudyError').textContent = yearError;
-                    specificFieldsValid = false;
-                }
-            } else if (userType === 'FACULTY_MEMBER') {
-                const designation = document.getElementById('designation').value;
-
-                const designationError = validateDesignation(designation);
-
-                if (designationError) {
-                    if (designationError) document.getElementById('designationError').textContent = designationError;
-                    specificFieldsValid = false;
-                }
-            }
-
-            if (!specificFieldsValid) {
-                return;
-            }
-
             // Prepare registration data
             const registrationData = {
                 name,
                 emailAddress,
                 department,
-                password,
-                userType
+                password
             };
-
-            // Add user type specific data
-            if (userType === 'STUDENT') {
-                registrationData.studentId = document.getElementById('studentId').value;
-                registrationData.program = document.getElementById('program').value;
-                registrationData.yearOfStudy = parseInt(document.getElementById('yearOfStudy').value);
-            } else if (userType === 'FACULTY_MEMBER') {
-                registrationData.designation = document.getElementById('designation').value;
-            }
 
             try {
                 const response = await fetch('/api/auth/register', {
@@ -479,7 +339,7 @@
                     localStorage.setItem('token', data.token);
 
                     setTimeout(() => {
-                        window.location.href = 'dashboard.html';
+                        window.location.href = 'home.html';
                     }, 2000);
                 } else {
                     errorMessage.textContent = data.message || 'Registration failed';
