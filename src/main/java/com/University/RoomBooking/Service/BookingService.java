@@ -9,6 +9,7 @@ import com.University.RoomBooking.Repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import jakarta.persistence.OptimisticLockException;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -51,8 +52,9 @@ public class BookingService {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        // Check if room is available
-        if (!isRoomAvailable(room, startTime, endTime)) {
+        // Check for conflicting bookings with pessimistic locking
+        List<Booking> conflictingBookings = bookingRepository.findConflictingBookingsWithLock(roomId, startTime, endTime);
+        if (!conflictingBookings.isEmpty()) {
             throw new IllegalArgumentException("Room is not available for the selected time period");
         }
 
@@ -67,6 +69,8 @@ public class BookingService {
 
         try {
             return bookingRepository.save(booking);
+        } catch (OptimisticLockException e) {
+            throw new IllegalArgumentException("Booking failed due to concurrent modification. Please try again.");
         } catch (Exception e) {
             throw new IllegalArgumentException("Failed to save booking: " + e.getMessage());
         }
