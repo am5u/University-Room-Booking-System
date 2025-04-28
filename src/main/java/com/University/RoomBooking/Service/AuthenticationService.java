@@ -42,39 +42,49 @@ public class AuthenticationService {
     @Transactional
     public AuthenticationResponse register(RegisterRequest request) {
         log.info("Starting user registration for name: {}", request.getName());
-
+    
+        // Check if the email already exists
         if (userRepository.findByEmailAddress(request.getEmailAddress()).isPresent()) {
             log.error("Registration failed - Email already exists: {}", request.getEmailAddress());
             throw new RuntimeException("Email already exists");
         }
-
+    
+        // Encode the password
         String encodedPassword = passwordEncoder.encode(request.getPassword());
         log.debug("Password encoded successfully");
-
+    
+        // Create a new User object
         User user = User.builder()
                 .name(request.getName())
-                .emailAddress(request.getEmailAddress())
+                .emailAddress(request.getEmailAddress()) // Ensure this field is not null
                 .password(encodedPassword)
-                .role(Role.STUDENT)
+                .role(Role.STUDENT) 
                 .department(request.getDepartment())
                 .build();
-
+    
+        // Save the user to the database
         User savedUser = userRepository.save(user);
         log.info("User registered successfully with ID: {}", savedUser.getId());
-
+    
+        // Generate a JWT token for the user
         String jwtToken = jwtService.generateToken(savedUser);
         log.info("JWT token generated for user: {}", savedUser.getName());
-
+    
+        // Return the authentication response
         return AuthenticationResponse.builder()
                 .token(jwtToken)
+                .message("Registration successful")
                 .build();
     }
+
+
 
     @Transactional(readOnly = true)
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         log.info("Starting authentication for email: {}", request.getEmailAddress());
-
+    
         try {
+            // Authenticate the user
             log.debug("Attempting to authenticate user with email: {}", request.getEmailAddress());
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
@@ -82,25 +92,29 @@ public class AuthenticationService {
                             request.getPassword()
                     )
             );
-
+    
             log.info("Authentication successful for user: {}", request.getEmailAddress());
-
+    
+            // Retrieve the user from the database
             User user = userRepository.findByEmailAddress(request.getEmailAddress())
                     .orElseThrow(() -> {
                         log.error("User not found after successful authentication: {}", request.getEmailAddress());
                         return new RuntimeException("User not found");
                     });
-
+    
             log.debug("Found user in database: {}", user.getEmailAddress());
             log.debug("User role: {}", user.getRole());
-
+    
+            // Generate a JWT token for the authenticated user
             String jwtToken = jwtService.generateToken(user);
             log.info("JWT token generated for authenticated user: {}", user.getName());
-
+    
+            // Return the authentication response
             return AuthenticationResponse.builder()
                     .token(jwtToken)
+                    .message("Authentication successful")
                     .build();
-
+    
         } catch (BadCredentialsException e) {
             log.error("Authentication failed - Invalid credentials for user: {}", request.getEmailAddress());
             throw new RuntimeException("Invalid email or password");

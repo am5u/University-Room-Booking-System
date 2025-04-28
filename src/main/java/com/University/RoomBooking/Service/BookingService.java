@@ -111,4 +111,38 @@ public class BookingService {
         booking.setStatus("CANCELLED");
         return bookingRepository.save(booking);
     }
+
+
+    @Transactional
+    public String rejectBooking(Long bookingId) {
+        // Find the booking by ID
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Booking with ID " + bookingId + " not found"));
+
+        // Update the booking status to "CANCELLED"
+        if (booking.getStatus().equals("CANCELLED")) {
+            throw new IllegalArgumentException("Booking is already cancelled");
+        }
+        
+        booking.setStatus("CANCELLED");
+
+        bookingRepository.save(booking);
+
+        return "Booking with ID " + bookingId + " has been rejected";
+    }
+
+
+    @Transactional
+    public void acceptBooking(Long Id) {
+        Booking booking = bookingRepository.findById(Id)
+            .orElseThrow(() -> new IllegalArgumentException("booking not found"));
+        
+        // Update the status to "CONFIRMED"
+        booking.setStatus("CONFIRMED");
+        bookingRepository.save(booking);
+    }
+
+    public List<Booking> getAllBookings() {
+        return bookingRepository.findPendingBookings();
+    }
 } 

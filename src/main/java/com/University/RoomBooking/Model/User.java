@@ -33,8 +33,14 @@ public class User implements UserDetails {
     private String password;
 
     @Enumerated(EnumType.STRING)
+   
     @Column(nullable = false)
-    private Role role;
+    //student by default
+    
+    @Builder.Default
+    private Role role = Role.STUDENT;
+   
+
 
     @Column(nullable = false)
     private String department;
@@ -53,6 +59,14 @@ public class User implements UserDetails {
     public String getUsername() {
         return emailAddress;
     }
+
+
+    public boolean setRole() {
+        this.role = Role.STUDENT;
+        return true;
+    }
+    
+
 
     @Override
     public boolean isAccountNonExpired() {

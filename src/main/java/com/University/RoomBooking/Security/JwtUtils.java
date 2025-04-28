@@ -67,4 +67,9 @@ public class JwtUtils {
                 .parseClaimsJws(token)
                 .getBody();
     }
+
+    //extract role from token
+    public String extractRole(String token) {
+        return extractClaim(token, claims -> claims.get("role", String.class));
+    }
 }
