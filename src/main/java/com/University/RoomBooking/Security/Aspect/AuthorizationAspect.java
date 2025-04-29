@@ -6,18 +6,17 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.stereotype.Component;
-import com.University.RoomBooking.Security.JwtUtils; 
+import com.University.RoomBooking.Security.JwtService;
 
 import java.util.Objects;
 
 @Aspect
 @Component
 @RequiredArgsConstructor
-
 public class AuthorizationAspect {
 
     private final HttpServletRequest request;
-    private final JwtUtils jwtUtil;
+    private final JwtService jwtService;
 
     @Pointcut("@annotation(com.University.RoomBooking.Security.AdminOnly)")
     public void adminOnlyMethods() {}
@@ -30,9 +29,9 @@ public class AuthorizationAspect {
         }
 
         String token = authHeader.substring(7);
-        String role = jwtUtil.extractRole(token); 
+        String role = jwtService.extractClaim(token, claims -> claims.get("role", String.class));
 
-        if (!Objects.equals(role, "ADMIN")) {
+        if (!Objects.equals(role, "ROLE_ADMIN")) {
             throw new RuntimeException("Forbidden: Admins only");
         }
     }

@@ -61,13 +61,6 @@ public class User implements UserDetails {
     }
 
 
-    public boolean setRole() {
-        this.role = Role.STUDENT;
-        return true;
-    }
-    
-
-
     @Override
     public boolean isAccountNonExpired() {
         return true;

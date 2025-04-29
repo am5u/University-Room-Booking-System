@@ -143,6 +143,6 @@ public class BookingService {
     }
 
     public List<Booking> getAllBookings() {
-        return bookingRepository.findPendingBookings();
+        return bookingRepository.findAll();
     }
 } 

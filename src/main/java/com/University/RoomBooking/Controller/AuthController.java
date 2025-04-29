@@ -5,8 +5,10 @@ import com.University.RoomBooking.Dto.AuthenticationResponse;
 import com.University.RoomBooking.Dto.RegisterRequest;
 import com.University.RoomBooking.Model.User;
 import com.University.RoomBooking.Service.AuthenticationService;
+import com.University.RoomBooking.Service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +22,7 @@ import java.util.List;
 public class AuthController {
 
     private final AuthenticationService authenticationService;
+    private final UserService userService;
 
     @PostMapping("/register")
     public ResponseEntity<AuthenticationResponse> register(@RequestBody RegisterRequest request) {
@@ -57,9 +60,6 @@ public class AuthController {
         return ResponseEntity.ok(user);
     }
 
-    // Debug endpoint to check all users in database
-    @GetMapping("/debug/users")
-    public ResponseEntity<List<User>> getAllUsers() {
-        return ResponseEntity.ok(authenticationService.getAllUsers());
-    }
+    // Admin endpoints
+    
 }

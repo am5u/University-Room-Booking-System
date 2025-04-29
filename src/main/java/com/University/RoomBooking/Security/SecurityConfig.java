@@ -46,7 +46,7 @@ public class SecurityConfig {
                     "/rooms.html",
                     "/booking.html",
                     "/booking-history.html",
-                    "/admin.html",
+                    "/admin-dashboard.html",
                     "/css/**",
                     "/js/**",
                     "/images/**",
@@ -69,7 +69,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/admin/**", "/api/rooms/manage/**", "/api/bookings/manage/**").hasRole("ADMIN")
                 
                 // Common endpoints for both roles
-                .requestMatchers("/api/bookings/view/**").hasAnyRole("STUDENT", "ADMIN")
+                .requestMatchers("/api/bookings/view/**").hasAnyRole("STUDENT", "ADMIN","FACULTYMEMBER")
                 
                 .anyRequest().authenticated()
             )

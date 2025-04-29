@@ -113,35 +113,39 @@ function isLoggedIn() {
 
 // Function to get user role
 function getUserRole() {
-    const role = localStorage.getItem('userRole');
-    if (!role) {
+    try {
         const token = localStorage.getItem('token');
-        if (token) {
-            try {
-                const tokenParts = token.split('.');
-                if (tokenParts.length === 3) {
-                    const payload = JSON.parse(atob(tokenParts[1]));
-                    if (payload.role) {
-                        localStorage.setItem('userRole', payload.role);
-                        return payload.role;
-                    }
-                }
-            } catch (e) {
-                console.error('Error getting user role:', e);
-            }
-        }
+        if (!token) return null;
+        
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        console.log('Token payload:', payload);
+        console.log('Raw role from token:', payload.role);
+        
+        const role = payload.role;
+        if (!role) return null;
+        
+        // Remove ROLE_ prefix if present
+        const cleanRole = role.replace('ROLE_', '');
+        console.log('Cleaned role:', cleanRole);
+        return cleanRole;
+    } catch (error) {
+        console.error('Error getting user role:', error);
+        return null;
     }
-    return role;
 }
 
 // Function to check if user is admin
 function isAdmin() {
-    return getUserRole() === 'ADMIN';
+    const role = getUserRole();
+    console.log('Current user role:', role);
+    console.log('Is admin check:', role === 'ADMIN');
+    return role === 'ADMIN';
 }
 
-// Function to check if user is student
-function isStudent() {
-    return getUserRole() === 'STUDENT';
+// Function to check if user is student or faculty
+function isUser() {
+    const role = getUserRole();
+    return role === 'STUDENT' || role === 'FACULTYMEMBER';
 }
 
 // Function to handle unauthorized access
@@ -151,12 +155,12 @@ function handleUnauthorized() {
 }
 
 // Function to check authorization for student pages
-function checkStudentAuthorization() {
+function checkUserAuthorization() {
     if (!isLoggedIn()) {
         window.location.href = 'login.html';
         return;
     }
-    if (!isStudent()) {
+    if (!isUser()) {
         handleUnauthorized();
     }
 }

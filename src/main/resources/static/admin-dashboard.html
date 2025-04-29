@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Room Booking System</title>
+    <link rel="stylesheet" href="css/admin.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>Room Booking</h1>
+            </div>
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link active">
+                            <i class="fas fa-calendar-check"></i>
+                            <span>Bookings</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="room-search.html" class="nav-link">
+                            <i class="fas fa-door-open"></i>
+                            <span>Rooms</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" onclick="showTab('users')">
+                            <i class="fas fa-users"></i>
+                            <span>Users</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header>
+                <h2>Dashboard</h2>
+                <div class="user-info">
+                    <span id="admin-name">Admin</span>
+                    <button onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </button>
+                </div>
+            </header>
+
+            <div class="tabs">
+                <button class="tab-btn active" onclick="showTab('pending')">
+                    <i class="fas fa-clock"></i>
+                    Pending Bookings
+                </button>
+                <button class="tab-btn" onclick="showTab('all')">
+                    <i class="fas fa-history"></i>
+                    All Bookings History
+                </button>
+                <button class="tab-btn" onclick="showTab('users')">
+                    <i class="fas fa-users"></i>
+                    Users
+                </button>
+            </div>
+
+            <div id="pending-bookings" class="tab-content active">
+                <h2>Pending Bookings</h2>
+                <div class="bookings-list" id="pending-list">
+                    <!-- Pending bookings will be loaded here -->
+                </div>
+            </div>
+
+            <div id="all-bookings" class="tab-content">
+                <h2>All Bookings History</h2>
+                <div class="bookings-list" id="all-list">
+                    <!-- All bookings will be loaded here -->
+                </div>
+            </div>
+
+            <div id="users" class="tab-content">
+                <h2>All Users</h2>
+                <div class="users-list" id="users-list">
+                    <!-- Users will be loaded here -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html> 

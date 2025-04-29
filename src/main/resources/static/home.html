@@ -10,9 +10,9 @@
     <script src="js/header.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Check if user is admin and redirect to admin page
-            if (getUserRole() === 'ADMIN') {
-                window.location.href = 'admin.html';
+            // Only redirect if we're on the home page and user is admin
+            if (window.location.pathname.endsWith('home.html') && getUserRole() === 'ADMIN') {
+                window.location.href = 'admin-dashboard.html';
             }
         });
     </script>
