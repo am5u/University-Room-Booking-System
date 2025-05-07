@@ -1,0 +1,38 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  main:
+    web-application-type: reactive
+
+  cloud:
+    gateway:
+      routes:
+        # User Service API routes
+        - id: userService
+          uri: http://localhost:8081
+          predicates:
+            - Path=/api/auth/**, /api/admin/**
+
+        # Booking Service API routes
+        - id: bookingService
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/bookings/**,/api/rooms/**
+
+        # Default route for frontend (User Service)
+        - id: frontend
+          uri: http://localhost:8081
+          predicates:
+            - Path=/**
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true

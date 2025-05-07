@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Gateway</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #3498db;
+        }
+        ul {
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 10px;
+        }
+        code {
+            background-color: #f8f8f8;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: monospace;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>API Gateway</h1>
+        <p>Welcome to the University Room Booking System API Gateway. This gateway routes requests to the appropriate microservices.</p>
+        
+        <h2>Available Services</h2>
+        <ul>
+            <li><strong>User Service</strong> - Handles user authentication and management</li>
+            <li><strong>Booking Service</strong> - Manages room bookings and availability</li>
+        </ul>
+        
+        <h2>API Endpoints</h2>
+        <ul>
+            <li><code>/api/auth/**</code> - Authentication endpoints</li>
+            <li><code>/api/admin/**</code> - Admin management endpoints</li>
+            <li><code>/api/bookings/**</code> - Booking management endpoints</li>
+            <li><code>/api/rooms/**</code> - Room management endpoints</li>
+        </ul>
+        
+        <p>For the frontend application, please visit <a href="/home.html">the home page</a>.</p>
+    </div>
+</body>
+</html>

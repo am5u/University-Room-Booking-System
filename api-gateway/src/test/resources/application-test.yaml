@@ -1,0 +1,24 @@
+server:
+  port: 0
+
+spring:
+  application:
+    name: api-gateway-test
+  main:
+    web-application-type: reactive
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: false
+      routes:
+        - id: test-route
+          uri: http://localhost:8080
+          predicates:
+            - Path=/test/**
+
+eureka:
+  client:
+    enabled: false
+    register-with-eureka: false
+    fetch-registry: false
