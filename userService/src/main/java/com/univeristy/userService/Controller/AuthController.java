@@ -1,5 +1,6 @@
 package com.univeristy.userService.Controller;
 
+import com.univeristy.userService.Annotation.AuditAction;
 import com.univeristy.userService.Dto.AuthenticationRequest;
 import com.univeristy.userService.Dto.AuthenticationResponse;
 import com.univeristy.userService.Dto.RegisterRequest;
@@ -21,6 +22,7 @@ public class AuthController {
     private final AuthenticationService authenticationService;
     private final UserService userService;
 
+   
     @PostMapping("/register")
     public ResponseEntity<AuthenticationResponse> register(@RequestBody RegisterRequest request) {
         try {

@@ -5,6 +5,10 @@
             <a href="/" class="logo">
                 <i class="fas fa-university"></i> University Room Booking
             </a>
+            <!-- Search Icon -->
+            <a href="room-search.html" class="search-icon" title="Search Rooms">
+                <i class="fas fa-search"></i>
+            </a>
             <div class="auth-section">
                 <div class="dropdown">
                     <button id="authButton" class="btn btn-light auth-button">
@@ -81,9 +85,11 @@
         border: 1px solid rgba(255, 255, 255, 0.2);
         color: white;
         backdrop-filter: blur(5px);
+        
     }
 
     .auth-button:hover {
+        color: #2ecc71;
         transform: translateY(-2px);
         background: rgba(255, 255, 255, 0.2);
         box-shadow: 0 4px 12px rgba(0,0,0,0.1);
@@ -159,19 +165,48 @@
             padding: 8px 16px;
         }
     }
+
+    .search-icon {
+        color: white;
+        font-size: 1.7rem;
+        margin-right: 1.5rem;
+        transition: color 0.2s, transform 0.2s;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        /* background: rgba(255,255,255,0.08);
+        border-radius: 50%;
+        width: 50px;
+        height: 38px; */
+    }
+    .search-icon:hover {
+        color: #2ecc71;
+        /* background: rgba(255,255,255,0.18); */
+        transform: scale(1.08);
+    }
+    @media (max-width: 768px) {
+        .search-icon {
+            margin-right: 0.7rem;
+            font-size: 1.1rem;
+            width: 32px;
+            height: 32px;
+        }
+    }
 </style>
 
 <script>
     // Update auth button based on login status
     function updateAuthButton() {
         const userId = localStorage.getItem('userId');
+        const userName = localStorage.getItem('userName');
         const authButton = document.getElementById('authButton');
         const authButtonText = document.getElementById('authButtonText');
         const dropdown = document.getElementById('authDropdown');
         const logoutBtn = document.getElementById('logoutBtn');
 
-        if (userId) {
-            authButtonText.textContent = '';
+        if (userId && userName) {
+            authButtonText.textContent = userName;
             dropdown.classList.remove('hidden');
 
             // Toggle dropdown visibility
@@ -187,7 +222,6 @@
 
             // Logout handler
             logoutBtn.onclick = () => {
-                // Use clearUserData function from auth.js if available
                 if (typeof clearUserData === 'function') {
                     clearUserData();
                 } else {

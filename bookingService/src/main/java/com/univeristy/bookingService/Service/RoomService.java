@@ -22,32 +22,18 @@ public class RoomService {
     private final BookingRepository bookingRepository;
 
     public List<Room> findAvailableRooms(RoomSearchRequest request) {
-       
-        LocalDate date = LocalDate.parse(request.getDate());
-        LocalTime time = LocalTime.parse(request.getTime());
-        
-        LocalDateTime startTime = LocalDateTime.of(date, time);
+        LocalDateTime startTime = LocalDateTime.of(
+            LocalDate.parse(request.getDate()),
+            LocalTime.parse(request.getTime())
+        );
         LocalDateTime endTime = startTime.plusHours(request.getDuration());
 
-        List<Room> availableRooms = roomRepository.findAvailableRooms(startTime, endTime);
-       
-        if (request.getCapacity() != null) {
-            availableRooms = availableRooms.stream()
-                .filter(room -> room.getCapacity() >= request.getCapacity())
-                .toList();
-        
-        }
-        if (request.getRoomType() != null && !request.getRoomType().trim().isEmpty()) {
-            String searchType = request.getRoomType().trim();
-            availableRooms = availableRooms.stream()
-                .filter(room -> {
-                    boolean matches = room.getRoomType().equalsIgnoreCase(searchType);
-                    return matches;
-                })
-                .toList();
-        }
-
-        return availableRooms;
+        return roomRepository.findAvailableRooms(startTime, endTime).stream()
+            .filter(room -> request.getCapacity() == null || room.getCapacity() >= request.getCapacity())
+            .filter(room -> request.getRoomType() == null || 
+                          request.getRoomType().trim().isEmpty() || 
+                          room.getRoomType().equalsIgnoreCase(request.getRoomType().trim()))
+            .toList();
     }
 
     public Optional<Room> getRoomById(Long id) {
@@ -55,20 +41,21 @@ public class RoomService {
     }
 
     public boolean checkRoomAvailability(Long roomId, String date, String time, int duration) {
-        LocalDate bookingDate = LocalDate.parse(date);
-        LocalTime bookingTime = LocalTime.parse(time);
-        LocalDateTime startTime = LocalDateTime.of(bookingDate, bookingTime);
+        LocalDateTime startTime = LocalDateTime.of(
+            LocalDate.parse(date),
+            LocalTime.parse(time)
+        );
         LocalDateTime endTime = startTime.plusHours(duration);
-        List<Booking> conflictingBookings = bookingRepository.findByRoomId(roomId).stream()
-            .filter(booking -> booking.getStatus().equals("CONFIRMED")|| booking.getStatus().equals("PENDING"))
-            .filter(booking -> 
-                (booking.getStartTime().isBefore(endTime) && booking.getEndTime().isAfter(startTime)) ||
-                (booking.getStartTime().isAfter(startTime) && booking.getStartTime().isBefore(endTime)) ||
-                (booking.getEndTime().isAfter(startTime) && booking.getEndTime().isBefore(endTime))
-            )
-            .toList();
 
-        return conflictingBookings.isEmpty();
+        return bookingRepository.findByRoomId(roomId).stream()
+            .filter(booking -> booking.getStatus().equals("CONFIRMED") || booking.getStatus().equals("PENDING"))
+            .noneMatch(booking -> isTimeOverlapping(booking, startTime, endTime));
+    }
+
+    private boolean isTimeOverlapping(Booking booking, LocalDateTime startTime, LocalDateTime endTime) {
+        return (booking.getStartTime().isBefore(endTime) && booking.getEndTime().isAfter(startTime)) ||
+               (booking.getStartTime().isAfter(startTime) && booking.getStartTime().isBefore(endTime)) ||
+               (booking.getEndTime().isAfter(startTime) && booking.getEndTime().isBefore(endTime));
     }
 
     // public List<Room> getAllRooms() {

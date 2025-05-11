@@ -22,6 +22,7 @@
             --confirmed-color: #27ae60;
             --cancelled-color: #c0392b;
             --past-color: #7f8c8d;
+            --rejected-color: #e74c3c;
         }
 
         body {
@@ -132,6 +133,11 @@
             border-left: 3px solid var(--cancelled-color);
         }
 
+        .booking-card.rejected {
+            opacity: 0.8;
+            border-left: 3px solid var(--rejected-color);
+        }
+
         .booking-header {
             padding: 1rem 1.5rem;
             background: #f8f9fa;
@@ -173,6 +179,11 @@
         .status-past {
             background: var(--past-color);
             border: 1px solid #6c7a7d;
+        }
+
+        .status-rejected {
+            background: var(--rejected-color);
+            border: 1px solid #c0392b;
         }
 
         .booking-details {
@@ -340,10 +351,11 @@
             const statusClass = isPast ? 'status-past' : {
                 'PENDING': 'status-pending',
                 'CONFIRMED': 'status-confirmed',
-                'CANCELLED': 'status-cancelled'
+                'CANCELLED': 'status-cancelled',
+                'REJECTED': 'status-rejected'
             }[booking.status] || 'status-pending';
 
-            card.className = `booking-card ${isPast ? 'past' : ''} ${booking.status === 'CANCELLED' ? 'cancelled' : ''}`;
+            card.className = `booking-card ${isPast ? 'past' : ''} ${booking.status === 'CANCELLED' ? 'cancelled' : ''} ${booking.status === 'REJECTED' ? 'rejected' : ''}`;
 
             const startTime = new Date(booking.startTime);
             const endTime = new Date(booking.endTime);
@@ -363,6 +375,9 @@
                 if (booking.status === 'CANCELLED') {
                     statusIcon = 'fa-times-circle';
                     statusText = 'CANCELLED';
+                } else if (booking.status === 'REJECTED') {
+                    statusIcon = 'fa-ban';
+                    statusText = 'REJECTED';
                 } else {
                     statusIcon = 'fa-check-circle';
                     statusText = 'COMPLETED';
@@ -371,13 +386,14 @@
                 statusIcon = {
                     'PENDING': 'fa-clock',
                     'CONFIRMED': 'fa-check-circle',
-                    'CANCELLED': 'fa-times-circle'
+                    'CANCELLED': 'fa-times-circle',
+                    'REJECTED': 'fa-ban'
                 }[booking.status] || 'fa-clock';
                 statusText = booking.status;
             }
 
             card.innerHTML = `
-                <div class="timeline-dot ${isPast ? 'past' : ''} ${booking.status === 'CANCELLED' ? 'cancelled' : ''}"></div>
+                <div class="timeline-dot ${isPast ? 'past' : ''} ${booking.status === 'CANCELLED' ? 'cancelled' : ''} ${booking.status === 'REJECTED' ? 'rejected' : ''}"></div>
                 <div class="booking-header">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
@@ -408,13 +424,15 @@
                             <span>${booking.purpose}</span>
                         </div>
                     </div>
-                    ${booking.status !== 'CANCELLED' && !isPast ? `
-                        <div class="text-end">
-                            <button class="cancel-button" onclick="cancelBooking(${booking.bookingId})">
-                                <i class="fas fa-times"></i> Cancel
-                            </button>
-                        </div>
-                    ` : ''}
+                    ${
+                        (booking.status !== 'CANCELLED' && booking.status !== 'REJECTED' && !isPast)
+                        ? `<div class="text-end">
+                                <button class="cancel-button" onclick="cancelBooking(${booking.bookingId})">
+                                    <i class="fas fa-times"></i> Cancel
+                                </button>
+                           </div>`
+                        : ''
+                    }
                 </div>
             `;
 

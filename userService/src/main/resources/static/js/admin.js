@@ -158,6 +158,11 @@ function getAuthHeaders() {
         console.log('Admin.js - Adding X-User-ID header:', userId);
     }
 
+    const userRole = localStorage.getItem('userRole');
+    if (userRole) {
+        headers['X-User-Role'] = userRole === 'ADMIN' ? 'ROLE_ADMIN' : userRole;
+    }
+
     return headers;
 }
 

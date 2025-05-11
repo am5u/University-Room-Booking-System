@@ -122,6 +122,7 @@ public class AdminController {
 
     @PostMapping("/users/{userId}/role")
     @AdminOnly
+    @AuditAction("Change User Role")
     public ResponseEntity<User> updateUserRole(
             @PathVariable Long userId,
             @RequestBody RoleUpdateRequest request

@@ -1,5 +1,7 @@
 package com.univeristy.bookingService.Controller;
 
+import com.univeristy.bookingService.Annotation.AuditAction;
+import com.univeristy.bookingService.Dto.BookingRequest;
 import com.univeristy.bookingService.Model.Booking;
 import com.univeristy.bookingService.Service.BookingService;
 import lombok.RequiredArgsConstructor;
@@ -17,138 +19,89 @@ public class BookingController {
     private final BookingService bookingService;
 
     @PostMapping
-    public ResponseEntity<?> createBooking(@RequestBody(required = false) Map<String, Object> bookingRequest) {
+    @AuditAction("Create Booking")
+    public ResponseEntity<?> createBooking(@RequestBody BookingRequest request) {
         try {
-            // Validate request body
-            if (bookingRequest == null) {
-                return ResponseEntity.badRequest().body(Map.of("message", "Request body is required"));
-            }
-
-            // Get and validate roomId
-            Object roomIdObj = bookingRequest.get("roomId");
-            if (roomIdObj == null) {
-                return ResponseEntity.badRequest().body(Map.of("message", "Room ID is required"));
-            }
-            Long roomId;
-            try {
-                roomId = Long.parseLong(roomIdObj.toString());
-            } catch (NumberFormatException e) {
-                return ResponseEntity.badRequest().body(Map.of("message", "Invalid room ID format"));
-            }
-
-            // Get and validate userId
-            Object userIdObj = bookingRequest.get("userId");
-            if (userIdObj == null) {
-                return ResponseEntity.badRequest().body(Map.of("message", "User ID is required"));
-            }
-            Long userId;
-            try {
-                userId = Long.parseLong(userIdObj.toString());
-            } catch (NumberFormatException e) {
-                return ResponseEntity.badRequest().body(Map.of("message", "Invalid user ID format"));
-            }
-
-            // Get and validate date
-            Object dateObj = bookingRequest.get("date");
-            if (dateObj == null) {
-                return ResponseEntity.badRequest().body(Map.of("message", "Date is required"));
-            }
-            String date = dateObj.toString();
-            if (date.trim().isEmpty()) {
-                return ResponseEntity.badRequest().body(Map.of("message", "Date cannot be empty"));
-            }
-
-            // Get and validate time
-            Object timeObj = bookingRequest.get("time");
-            if (timeObj == null) {
-                return ResponseEntity.badRequest().body(Map.of("message", "Time is required"));
-            }
-            String time = timeObj.toString();
-            if (time.trim().isEmpty()) {
-                return ResponseEntity.badRequest().body(Map.of("message", "Time cannot be empty"));
-            }
-
-            // Get and validate duration
-            Object durationObj = bookingRequest.get("duration");
-            if (durationObj == null) {
-                return ResponseEntity.badRequest().body(Map.of("message", "Duration is required"));
-            }
-            int duration;
-            try {
-                duration = Integer.parseInt(durationObj.toString());
-                if (duration <= 0 || duration > 8) {
-                    return ResponseEntity.badRequest().body(Map.of("message", "Duration must be between 1 and 8 hours"));
-                }
-            } catch (NumberFormatException e) {
-                return ResponseEntity.badRequest().body(Map.of("message", "Invalid duration format"));
-            }
-
-            // Get and validate purpose
-            Object purposeObj = bookingRequest.get("purpose");
-            if (purposeObj == null) {
-                return ResponseEntity.badRequest().body(Map.of("message", "Purpose is required"));
-            }
-            String purpose = purposeObj.toString();
-            if (purpose.trim().isEmpty()) {
-                return ResponseEntity.badRequest().body(Map.of("message", "Purpose cannot be empty"));
-            }
-
-            Booking booking = bookingService.createBooking(roomId, userId, date, time, duration, purpose);
+            validateBookingRequest(request);
+            Booking booking = bookingService.createBooking(
+                request.getRoomId(),
+                request.getUserId(),
+                request.getDate(),
+                request.getTime(),
+                request.getDuration(),
+                request.getPurpose()
+            );
             return ResponseEntity.ok(booking);
-        } catch (Exception e) {
+        } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    private void validateBookingRequest(BookingRequest request) {
+        if (request == null) {
+            throw new IllegalArgumentException("Request body is required");
+        }
+        if (request.getRoomId() == null) {
+            throw new IllegalArgumentException("Room ID is required");
+        }
+        if (request.getUserId() == null) {
+            throw new IllegalArgumentException("User ID is required");
+        }
+        if (request.getDate() == null || request.getDate().trim().isEmpty()) {
+            throw new IllegalArgumentException("Date is required");
+        }
+        if (request.getTime() == null || request.getTime().trim().isEmpty()) {
+            throw new IllegalArgumentException("Time is required");
+        }
+        if (request.getDuration() == null || request.getDuration() <= 0 || request.getDuration() > 8) {
+            throw new IllegalArgumentException("Duration must be between 1 and 8 hours");
+        }
+        if (request.getPurpose() == null || request.getPurpose().trim().isEmpty()) {
+            throw new IllegalArgumentException("Purpose is required");
         }
     }
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<Booking>> getUserBookings(@PathVariable Long userId) {
-        List<Booking> bookings = bookingService.getUserBookings(userId);
-        return ResponseEntity.ok(bookings);
+        return ResponseEntity.ok(bookingService.getUserBookings(userId));
     }
 
     @GetMapping("/user/{userId}/history")
-    public ResponseEntity<?> getUserBookingHistory(@PathVariable Long userId) {
-        try {
-            List<Booking> bookings = bookingService.getUserBookings(userId);
-            return ResponseEntity.ok(bookings);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
-        }
+    public ResponseEntity<List<Booking>> getUserBookingHistory(@PathVariable Long userId) {
+        return ResponseEntity.ok(bookingService.getUserBookings(userId));
     }
 
     @PostMapping("/{bookingId}/cancel")
+    @AuditAction("Cancel Booking")
     public ResponseEntity<?> cancelBooking(@PathVariable Long bookingId) {
         try {
-            Booking booking = bookingService.cancelBooking(bookingId);
-            return ResponseEntity.ok(booking);
-        } catch (Exception e) {
+            return ResponseEntity.ok(bookingService.cancelBooking(bookingId));
+        } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
     }
 
     @GetMapping("/all")
     public ResponseEntity<List<Booking>> getAllBookings() {
-        List<Booking> bookings = bookingService.getAllBookings();
-        return ResponseEntity.ok(bookings);
+        return ResponseEntity.ok(bookingService.getAllBookings());
     }
 
     @PostMapping("/{id}/accept")
-    public ResponseEntity<String> acceptBooking(@PathVariable Long id) {
+    public ResponseEntity<?> acceptBooking(@PathVariable Long id) {
         try {
             bookingService.acceptBooking(id);
-            return ResponseEntity.ok("Booking with ID " + id + " has been accepted");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.ok(Map.of("message", "Booking with ID " + id + " has been accepted"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
     }
 
     @PostMapping("/{id}/reject")
-    public ResponseEntity<String> rejectBooking(@PathVariable Long id) {
+    public ResponseEntity<?> rejectBooking(@PathVariable Long id) {
         try {
-            String result = bookingService.rejectBooking(id);
-            return ResponseEntity.ok(result);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.ok(Map.of("message", bookingService.rejectBooking(id)));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
     }
 }

@@ -5,6 +5,7 @@ import com.univeristy.userService.Dto.AuthenticationResponse;
 import com.univeristy.userService.Dto.RegisterRequest;
 import com.univeristy.userService.Model.*;
 import com.univeristy.userService.Repository.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +19,7 @@ import java.util.List;
 public class AuthenticationService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional(readOnly = true)
     public User getUserByEmailAddress(String emailAddress) {
@@ -39,20 +41,20 @@ public class AuthenticationService {
             throw new RuntimeException("Email already exists");
         }
 
-        // Create a new User object with plain password (no security)
+
         User user = User.builder()
                 .name(request.getName())
                 .emailAddress(request.getEmailAddress())
-                .password(request.getPassword()) // Store password as plain text since we removed security
+                .password(passwordEncoder.encode(request.getPassword())) // Hash the password
                 .role(Role.STUDENT)
                 .department(request.getDepartment())
                 .build();
 
-        // Save the user to the database
+       
         User savedUser = userRepository.save(user);
         log.info("User registered successfully with ID: {}", savedUser.getId());
 
-        // Return the authentication response
+        
         return AuthenticationResponse.builder()
                 .userId(savedUser.getId())
                 .name(savedUser.getName())
@@ -61,22 +63,19 @@ public class AuthenticationService {
                 .build();
     }
 
-
-
     @Transactional(readOnly = true)
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         log.info("Starting authentication for email: {}", request.getEmailAddress());
 
         try {
-            // Retrieve the user from the database
             User user = userRepository.findByEmailAddress(request.getEmailAddress())
                     .orElseThrow(() -> {
                         log.error("User not found: {}", request.getEmailAddress());
                         return new RuntimeException("User not found");
                     });
 
-            // Simple password check (no encryption since we removed security)
-            if (!user.getPassword().equals(request.getPassword())) {
+           
+            if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
                 log.error("Authentication failed - Invalid password for user: {}", request.getEmailAddress());
                 throw new RuntimeException("Invalid email or password");
             }
@@ -85,7 +84,6 @@ public class AuthenticationService {
             log.debug("Found user in database: {}", user.getEmailAddress());
             log.debug("User role: {}", user.getRole());
 
-            // Return the authentication response
             return AuthenticationResponse.builder()
                     .userId(user.getId())
                     .name(user.getName())
@@ -99,7 +97,7 @@ public class AuthenticationService {
         }
     }
 
-    // Debug method to check all users in database
+   
     @Transactional(readOnly = true)
     public List<User> getAllUsers() {
         List<User> users = userRepository.findAll();

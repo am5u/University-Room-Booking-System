@@ -43,13 +43,11 @@ public class BookingService {
             System.out.println("BookingService: Received " + (bookings != null ? bookings.size() : 0) + " bookings from booking service");
 
             if (bookings != null) {
-                // Enhance bookings with user and room names
                 for (Booking booking : bookings) {
                     System.out.println("BookingService: Processing booking ID: " + booking.getId() +
                                       ", User ID: " + booking.getUserId() +
                                       ", Room ID: " + booking.getRoomId());
                     try {
-                        // Get user info if userId is available
                         if (booking.getUserId() != null) {
                             try {
                                 String userUrl = "http://localhost:8080/api/auth/user/" + booking.getUserId();
@@ -102,11 +100,11 @@ public class BookingService {
                             booking.setUserName("Unknown User");
                         }
 
-                        // Check if we already have room information
+                        
                         if (booking.getRoom() != null) {
                             System.out.println("BookingService: Booking already has room information: " + booking.getRoom());
 
-                            // Set roomName for backward compatibility
+                            
                             if (booking.getRoom().getName() != null) {
                                 booking.setRoomName(booking.getRoom().getName());
                                 System.out.println("BookingService: Set roomName to: " + booking.getRoom().getName());
@@ -115,7 +113,6 @@ public class BookingService {
                                 System.out.println("BookingService: Room name is null, using Room ID: " + booking.getRoomId());
                             }
                         } else if (booking.getRoomId() != null) {
-                            // If we don't have room information but have roomId, try to fetch it
                             try {
                                 String roomUrl = "http://localhost:8080/api/rooms/" + booking.getRoomId();
                                 System.out.println("BookingService: Fetching room info from " + roomUrl);
