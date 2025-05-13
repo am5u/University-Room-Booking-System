@@ -2,11 +2,39 @@
 const API_BASE_URL = 'http://localhost:8080/api';
 const BOOKINGS_URL = `${API_BASE_URL}/bookings`;
 const ADMIN_URL = `${API_BASE_URL}/admin`;
+const AUTH_URL = `${API_BASE_URL}/auth`;
 
 // DOM Elements
 const pendingList = document.getElementById('pending-list');
 const allList = document.getElementById('all-list');
 const usersList = document.getElementById('users-list');
+
+// Cache for user details
+const userCache = new Map();
+
+// Function to get user details
+async function getUserDetails(userId) {
+    if (userCache.has(userId)) {
+        return userCache.get(userId);
+    }
+    
+    try {
+        const response = await fetch(`${AUTH_URL}/user/${userId}`, {
+            headers: getAuthHeaders()
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to fetch user details');
+        }
+        
+        const user = await response.json();
+        userCache.set(userId, user);
+        return user;
+    } catch (error) {
+        console.error('Error fetching user details:', error);
+        return null;
+    }
+}
 
 // Initialize the dashboard
 document.addEventListener('DOMContentLoaded', async () => {
@@ -72,12 +100,17 @@ function formatDateTime(dateTimeString) {
 }
 
 // Create booking card HTML
-function createBookingCard(booking) {
+async function createBookingCard(booking) {
+    // Fetch user details
+    const user = await getUserDetails(booking.userId);
+    console.log('User details for booking:', user); // Debug log
+    console.log('Booking object:', booking); // Debug log to see the booking structure
+    
     const statusClass = `status-${booking.status.toLowerCase()}`;
     return `
         <div class="booking-card">
             <div class="booking-header">
-                <h3 class="booking-title">Booking #${booking.id}</h3>
+                <h3 class="booking-title">Booking #${booking.bookingId}</h3>
                 <span class="booking-status ${statusClass}">
                     <i class="fas ${getStatusIcon(booking.status)}"></i>
                     ${booking.status}
@@ -90,11 +123,11 @@ function createBookingCard(booking) {
                 </div>
                 <div class="booking-detail">
                     <i class="fas fa-user"></i>
-                    <span><strong>User:</strong> ${booking.user ? booking.user.name : 'Unknown User'} (${booking.user ? booking.user.role : 'Unknown Role'})</span>
+                    <span><strong>User:</strong> ${user ? user.name : 'Unknown User'} (${user ? user.role : 'Unknown Role'})</span>
                 </div>
                 <div class="booking-detail">
                     <i class="fas fa-building"></i>
-                    <span><strong>Department:</strong> ${booking.user ? booking.user.department : 'Unknown Department'}</span>
+                    <span><strong>Department:</strong> ${user ? user.department : 'Unknown Department'}</span>
                 </div>
                 <div class="booking-detail">
                     <i class="fas fa-clock"></i>
@@ -111,11 +144,11 @@ function createBookingCard(booking) {
             </div>
             ${booking.status === 'PENDING' ? `
                 <div class="booking-actions">
-                    <button class="action-btn approve-btn" onclick="handleBookingAction(${booking.id}, 'accept')">
+                    <button class="action-btn approve-btn" onclick="handleBookingAction(${booking.bookingId}, 'accept')">
                         <i class="fas fa-check"></i>
                         Accept
                     </button>
-                    <button class="action-btn reject-btn" onclick="handleBookingAction(${booking.id}, 'reject')">
+                    <button class="action-btn reject-btn" onclick="handleBookingAction(${booking.bookingId}, 'reject')">
                         <i class="fas fa-times"></i>
                         Reject
                     </button>
@@ -168,14 +201,13 @@ function getAuthHeaders() {
 // Load pending bookings
 async function loadPendingBookings() {
     try {
-        console.log('Fetching pending bookings from:', `${ADMIN_URL}/allbookings`);
-        const response = await fetch(`${ADMIN_URL}/allbookings`, {
+        console.log('Fetching pending bookings from:', `${BOOKINGS_URL}/all`);
+        const response = await fetch(`${BOOKINGS_URL}/all`, {
             headers: getAuthHeaders()
         });
 
         if (!response.ok) {
             if (response.status === 401) {
-                // Unauthorized - redirect to login
                 window.location.href = '/login.html';
                 return;
             }
@@ -195,7 +227,9 @@ async function loadPendingBookings() {
         if (pendingBookings.length === 0) {
             pendingList.innerHTML = '<p>No pending bookings found</p>';
         } else {
-            pendingList.innerHTML = pendingBookings.map(createBookingCard).join('');
+            // Create all booking cards asynchronously
+            const bookingCards = await Promise.all(pendingBookings.map(createBookingCard));
+            pendingList.innerHTML = bookingCards.join('');
         }
     } catch (error) {
         console.error('Error loading pending bookings:', error);
@@ -211,14 +245,13 @@ async function loadPendingBookings() {
 // Load all bookings
 async function loadAllBookings() {
     try {
-        console.log('Fetching all bookings from:', `${ADMIN_URL}/allbookings`);
-        const response = await fetch(`${ADMIN_URL}/allbookings`, {
+        console.log('Fetching all bookings from:', `${BOOKINGS_URL}/all`);
+        const response = await fetch(`${BOOKINGS_URL}/all`, {
             headers: getAuthHeaders()
         });
 
         if (!response.ok) {
             if (response.status === 401) {
-                // Unauthorized - redirect to login
                 window.location.href = '/login.html';
                 return;
             }
@@ -240,7 +273,9 @@ async function loadAllBookings() {
         if (historyBookings.length === 0) {
             allList.innerHTML = '<p>No booking history found</p>';
         } else {
-            allList.innerHTML = historyBookings.map(createBookingCard).join('');
+            // Create all booking cards asynchronously
+            const bookingCards = await Promise.all(historyBookings.map(createBookingCard));
+            allList.innerHTML = bookingCards.join('');
         }
     } catch (error) {
         console.error('Error loading all bookings:', error);
@@ -256,23 +291,16 @@ async function loadAllBookings() {
 // Handle booking actions (accept/reject)
 async function handleBookingAction(bookingId, action) {
     try {
-        const endpoint = action === 'accept' ? 'acceptbooking' : 'rejectbooking';
-
-        // Get the current user ID
-        const userId = localStorage.getItem('userId');
-        console.log('handleBookingAction - User ID:', userId);
-
-        // Create headers with user ID
-        const headers = getAuthHeaders();
-        console.log('handleBookingAction - Headers:', headers);
-
-        const response = await fetch(`${ADMIN_URL}/${endpoint}?Id=${bookingId}`, {
+        console.log(`Handling ${action} action for booking ${bookingId}`);
+        
+        const response = await fetch(`${BOOKINGS_URL}/${bookingId}/${action}`, {
             method: 'POST',
-            headers: headers
+            headers: getAuthHeaders()
         });
 
         // Get the response text first
         const responseText = await response.text();
+        console.log(`Response from ${action}:`, responseText);
 
         // Try to parse as JSON
         let responseData;
@@ -282,26 +310,24 @@ async function handleBookingAction(bookingId, action) {
             responseData = { message: responseText };
         }
 
-        // If the database was updated (which we know is happening), consider it a success
-        // regardless of the response status
-        if (response.ok || response.status === 403) {
-            // Silently reload the appropriate list
-            const currentTab = document.querySelector('.tab-content.active').id;
-            if (currentTab === 'pending-bookings') {
-                loadPendingBookings();
-            } else {
-                loadAllBookings();
-            }
-        } else {
+        if (!response.ok) {
             if (response.status === 401) {
                 window.location.href = '/login.html';
                 return;
             }
-            throw new Error(responseData.message || 'Failed to process booking action');
+            throw new Error(responseData.message || `Failed to ${action} booking`);
+        }
+
+       
+        const currentTab = document.querySelector('.tab-content.active').id;
+        if (currentTab === 'pending-bookings') {
+            loadPendingBookings();
+        } else {
+            loadAllBookings();
         }
     } catch (error) {
-        console.error('Error processing booking action:', error);
-        alert('Error processing booking action: ' + error.message);
+        console.error(`Error ${action}ing booking:`, error);
+        alert(`Error ${action}ing booking: ${error.message}`);
     }
 }
 

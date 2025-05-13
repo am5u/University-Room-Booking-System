@@ -23,15 +23,14 @@ public class BookingController {
     public ResponseEntity<?> createBooking(@RequestBody BookingRequest request) {
         try {
             validateBookingRequest(request);
-            Booking booking = bookingService.createBooking(
+            return ResponseEntity.ok(bookingService.createBooking(
                 request.getRoomId(),
                 request.getUserId(),
                 request.getDate(),
                 request.getTime(),
                 request.getDuration(),
                 request.getPurpose()
-            );
-            return ResponseEntity.ok(booking);
+            ));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
@@ -87,7 +86,13 @@ public class BookingController {
     }
 
     @PostMapping("/{id}/accept")
-    public ResponseEntity<?> acceptBooking(@PathVariable Long id) {
+    @AuditAction("Accept Booking")
+    public ResponseEntity<?> acceptBooking(
+            @PathVariable Long id,
+            @RequestHeader(value = "X-User-Role", required = true) String userRole) {
+        if (!"ROLE_ADMIN".equals(userRole)) {
+            return ResponseEntity.status(403).body(Map.of("message", "Only administrators can accept bookings"));
+        }
         try {
             bookingService.acceptBooking(id);
             return ResponseEntity.ok(Map.of("message", "Booking with ID " + id + " has been accepted"));
@@ -97,7 +102,13 @@ public class BookingController {
     }
 
     @PostMapping("/{id}/reject")
-    public ResponseEntity<?> rejectBooking(@PathVariable Long id) {
+    @AuditAction("Reject Booking")
+    public ResponseEntity<?> rejectBooking(
+            @PathVariable Long id,
+            @RequestHeader(value = "X-User-Role", required = true) String userRole) {
+        if (!"ROLE_ADMIN".equals(userRole)) {
+            return ResponseEntity.status(403).body(Map.of("message", "Only administrators can reject bookings"));
+        }
         try {
             return ResponseEntity.ok(Map.of("message", bookingService.rejectBooking(id)));
         } catch (IllegalArgumentException e) {

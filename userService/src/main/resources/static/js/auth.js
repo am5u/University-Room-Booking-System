@@ -1,6 +1,4 @@
-
 const publicPages = ['home.html', 'register.html', 'login.html'];
-
 
 function isPublicPage() {
     const currentPage = window.location.pathname.split('/').pop();
@@ -32,23 +30,18 @@ function getAuthHeaders() {
         'Content-Type': 'application/json'
     };
 
-    
     const userId = localStorage.getItem('userId');
     if (userId) {
         headers['X-User-ID'] = userId;
-        
     }
 
     return headers;
 }
 
-
 function logout() {
     clearUserData();
     window.location.href = 'login.html';
 }
-
-
 
 function getCurrentUserId() {
     const userId = localStorage.getItem('userId');
@@ -67,11 +60,9 @@ function isLoggedIn() {
     return !!(userId && userRole && userName);
 }
 
-
 function getUserRole() {
     return localStorage.getItem('userRole');
 }
-
 
 function isAdmin() {
     const role = getUserRole();
@@ -85,7 +76,6 @@ function isUser() {
     const role = getUserRole();
     return role === 'STUDENT' || role === 'FACULTYMEMBER';
 }
-
 
 function handleUnauthorized() {
     alert('You are not authorized to access this page');
