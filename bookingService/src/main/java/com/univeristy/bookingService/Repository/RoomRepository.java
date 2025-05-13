@@ -14,7 +14,7 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
     
     @Query("SELECT DISTINCT r FROM Room r WHERE NOT EXISTS (" +
            "SELECT b FROM Booking b WHERE b.room = r " +
-           "AND b.status != 'CANCELLED' OR b.status != 'REJECTED'" +
+           "AND b.status NOT IN ('CANCELLED', 'REJECTED') " +
            "AND ((b.startTime <= :endTime AND b.endTime >= :startTime) " +
            "OR (b.startTime >= :startTime AND b.startTime < :endTime) " +
            "OR (b.endTime > :startTime AND b.endTime <= :endTime)))")

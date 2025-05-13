@@ -11,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -98,15 +97,4 @@ public class AuthenticationService {
     }
 
    
-    @Transactional(readOnly = true)
-    public List<User> getAllUsers() {
-        List<User> users = userRepository.findAll();
-        log.info("Found {} users in database", users.size());
-        users.forEach(user -> {
-            log.info("User: {}", user.getName());
-            log.info("Role: {}", user.getRole());
-            log.info("Email: {}", user.getEmailAddress());
-        });
-        return users;
-    }
 }

@@ -20,9 +20,10 @@ public class Booking {
     private Long roomId;
     private Long userId;
 
-    // Direct reference to Room object (will be populated from JSON)
+    // Direct reference to Room and User objects
     private Room room;
 
+    
     // For frontend compatibility
     public Long getBookingId() {
         return id;
@@ -43,7 +44,7 @@ public class Booking {
         User mockUser = new User();
         mockUser.setId(userId);
         mockUser.setName(userName != null ? userName : "Unknown User");
-        mockUser.setRole(userRole != null ? userRole : Role.STUDENT);
+        mockUser.setRole(userRole);
         mockUser.setDepartment(userDepartment != null ? userDepartment : "Unknown Department");
         return mockUser;
     }

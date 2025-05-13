@@ -29,6 +29,7 @@ public class SecurityConfig {
                     "/register.html",
                     "/room-search.html",
                     "/admin-dashboard.html",
+                    "/profile.html",
                     "/home.html",
                     "/index.html",
                     "/booking.html",

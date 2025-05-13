@@ -106,8 +106,6 @@ public class AdminController {
         }
     }
 
-
-
     @GetMapping("/users")
     @AdminOnly
     public ResponseEntity<List<User>> getAllUsers() {
@@ -118,7 +116,6 @@ public class AdminController {
     public ResponseEntity<Role[]> getAllRoles() {
         return ResponseEntity.ok(Role.values());
     }
-
 
     @PostMapping("/users/{userId}/role")
     @AdminOnly
@@ -131,7 +128,22 @@ public class AdminController {
         return ResponseEntity.ok(updatedUser);
     }
 
-
+    @DeleteMapping("/users/{userId}")
+    @AdminOnly
+    @AuditAction("Delete User")
+    public ResponseEntity<String> deleteUser(@PathVariable Long userId, HttpServletRequest request) {
+        try {
+            String adminUserId = request.getHeader("X-User-ID");
+            if (adminUserId != null) {
+                request.setAttribute("userId", adminUserId);
+            }
+            
+            userService.deleteUser(userId);
+            return ResponseEntity.ok("User deleted successfully");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }
 
 class RoleUpdateRequest {

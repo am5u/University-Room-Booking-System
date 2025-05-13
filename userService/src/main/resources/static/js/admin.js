@@ -74,11 +74,10 @@ function formatDateTime(dateTimeString) {
 // Create booking card HTML
 function createBookingCard(booking) {
     const statusClass = `status-${booking.status.toLowerCase()}`;
-    const userRole = booking.user.role === 'ADMIN' ? 'Admin' : 'Student';
     return `
         <div class="booking-card">
             <div class="booking-header">
-                <h3 class="booking-title">Booking #${booking.bookingId}</h3>
+                <h3 class="booking-title">Booking #${booking.id}</h3>
                 <span class="booking-status ${statusClass}">
                     <i class="fas ${getStatusIcon(booking.status)}"></i>
                     ${booking.status}
@@ -87,15 +86,15 @@ function createBookingCard(booking) {
             <div class="booking-details">
                 <div class="booking-detail">
                     <i class="fas fa-door-open"></i>
-                    <span><strong>Room:</strong> ${booking.room.name}</span>
+                    <span><strong>Room:</strong> ${booking.room ? booking.room.name : 'Unknown Room'}</span>
                 </div>
                 <div class="booking-detail">
                     <i class="fas fa-user"></i>
-                    <span><strong>User:</strong> ${booking.user.name} (${userRole})</span>
+                    <span><strong>User:</strong> ${booking.user ? booking.user.name : 'Unknown User'} (${booking.user ? booking.user.role : 'Unknown Role'})</span>
                 </div>
                 <div class="booking-detail">
                     <i class="fas fa-building"></i>
-                    <span><strong>Department:</strong> ${booking.user.department}</span>
+                    <span><strong>Department:</strong> ${booking.user ? booking.user.department : 'Unknown Department'}</span>
                 </div>
                 <div class="booking-detail">
                     <i class="fas fa-clock"></i>
@@ -112,11 +111,11 @@ function createBookingCard(booking) {
             </div>
             ${booking.status === 'PENDING' ? `
                 <div class="booking-actions">
-                    <button class="action-btn approve-btn" onclick="handleBookingAction(${booking.bookingId}, 'accept')">
+                    <button class="action-btn approve-btn" onclick="handleBookingAction(${booking.id}, 'accept')">
                         <i class="fas fa-check"></i>
                         Accept
                     </button>
-                    <button class="action-btn reject-btn" onclick="handleBookingAction(${booking.bookingId}, 'reject')">
+                    <button class="action-btn reject-btn" onclick="handleBookingAction(${booking.id}, 'reject')">
                         <i class="fas fa-times"></i>
                         Reject
                     </button>
@@ -336,7 +335,7 @@ async function loadUsers() {
                 console.log('Processing user:', user);
 
                 const userName = user.name || user.username || 'Unknown';
-                const userEmail = user.email || 'No email provided';
+                const userEmail = user.emailAddress || 'No email provided';
                 const userDepartment = user.department || 'No department specified';
                 const userRole = user.role || 'STUDENT';
                 const userId = user.id || user.userId;
@@ -371,6 +370,12 @@ async function loadUsers() {
                                 <i class="fas ${userRole === 'FACULTYMEMBER' ? 'fa-user-graduate' : 'fa-user-tie'}"></i>
                                 Change Role to ${userRole === 'FACULTYMEMBER' ? 'Student' : 'Faculty Member'}
                             </button>
+                            ${userRole !== 'ADMIN' ? `
+                                <button class="action-btn delete-btn" onclick="deleteUser(${userId}, '${userName}')">
+                                    <i class="fas fa-trash"></i>
+                                    Delete
+                                </button>
+                            ` : ''}
                         </div>
                     </div>
                 `;
@@ -441,4 +446,35 @@ function logout() {
     clearUserData();
     // Redirect to login page
     window.location.href = '/login.html';
+}
+
+// Add the delete user function at the end of the file
+async function deleteUser(userId, userName) {
+    if (!confirm(`Are you sure you want to delete user ${userName}? This action cannot be undone.`)) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`${ADMIN_URL}/users/${userId}`, {
+            method: 'DELETE',
+            headers: getAuthHeaders()
+        });
+
+        if (!response.ok) {
+            if (response.status === 401) {
+                window.location.href = '/login.html';
+                return;
+            }
+            const errorText = await response.text();
+            throw new Error(errorText || `Failed to delete user: ${response.status}`);
+        }
+
+        // Show success message
+        alert('User deleted successfully');
+        // Reload the users list
+        loadUsers();
+    } catch (error) {
+        console.error('Error deleting user:', error);
+        alert('Error deleting user: ' + error.message);
+    }
 }

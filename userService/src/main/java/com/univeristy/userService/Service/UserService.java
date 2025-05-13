@@ -36,4 +36,15 @@ public class UserService {
             throw new RuntimeException("Invalid role: " + role);
         }
     }
+
+    @Transactional
+    public User saveUser(User user) {
+        return userRepository.save(user);
+    }
+
+    @Transactional
+    public void deleteUser(Long userId) {
+        User user = getUserById(userId);
+        userRepository.delete(user);
+    }
 }
